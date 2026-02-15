@@ -54,6 +54,12 @@ router.get('/approvals', reportController.getApprovalStats);
 // EXPORT
 // ============================================
 
+// Export all report data as Excel file (prompt-compatible endpoint)
+router.get('/export/excel', reportController.exportExcel);
+
+// Export all report data as PDF file (prompt-compatible endpoint)
+router.get('/export/pdf', reportController.exportPdf);
+
 // Export suggestions
 router.get('/export/suggestions', reportController.exportSuggestions);
 

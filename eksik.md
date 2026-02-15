@@ -1,7 +1,9 @@
 # OpEx 5.0 - Guncel Durum ve Eksikler
 
 **Son Guncelleme:** 15 Subat 2026  
-**Genel Durum:** %99.5 (Canliya gecis oncesi stabilizasyon asamasi)
+**Teslimat Durumu:** Faz 1 (Stabilizasyon) kapanisa yakin  
+**Kapsam Tamamlanma (Feature/Operasyon):** %94 civari  
+**Uptime Hedefi (Production KPI):** %99.5 (canli ortam olcumu henuz baslamadi)
 
 ---
 
@@ -18,6 +20,12 @@
 - [x] Uctan uca onay akisi eklendi (USER -> KOMITE onayi -> MUDUR onayi)
 - [x] Frontend guvenlik guncellemeleri tamamlandi (Next.js 15.5.10, audit: 0 vulnerability)
 - [x] Branch protection otomasyon scripti eklendi (`scripts/setup-branch-protection.sh`)
+- [x] Prompt uyumlu rapor export endpointleri eklendi (`/api/v1/reports/export/excel`, `/api/v1/reports/export/pdf`)
+- [x] Eski report export endpointleri deprecate edildi (geri uyumluluk korundu)
+- [x] Pozisyon bazli cok adimli onay zinciri aktive edildi (Sef -> Mudur -> Fabrika Muduru -> GMY modeline gore)
+- [x] Pozisyon bazli onay zinciri E2E matrix testleri eklendi (operator/uzman/sef)
+- [x] Export endpointleri icin backend contract testleri eklendi (excel/pdf + deprecation header)
+- [x] Release aday dokumanlari olusturuldu (`release_checklist.md`, `RELEASE_NOTES_RC1.md`)
 
 ---
 
@@ -28,6 +36,8 @@
 - [x] Prisma migration + seed akisi stabil
 - [x] Redis + queue + email worker dev ortaminda calisiyor
 - [x] Jest testleri geciyor
+- [x] Excel/PDF dosya indirme export endpointleri aktif
+- [x] Cok adimli onay zinciri icin rol/pozisyon varyantli E2E dogrulamasi tamamlandi
 
 ### Frontend
 - [x] Ana sayfalar ve temel akislar calisiyor
@@ -54,11 +64,14 @@
 - [x] Full sistem smoke testi tek komut (`make e2e-smoke`) haline getirildi
 - [x] Frontend bagimlilik guvenlik guncellemeleri yapildi (ozellikle Next.js)
 - [ ] Branch protection ayari GitHub tarafinda uygulanacak (`make branch-protect`, token gerekli)
+- [x] Cok adimli onay akisi icin 3 farkli submitter profiline gore E2E matrix eklendi (operator/uzman/sef)
+- [x] Export endpointleri icin contract test eklendi (Excel/PDF response header + dosya formati)
 
 ### P1 - Kisa Vade
 - [ ] Swagger/OpenAPI dokumani
 - [ ] Kullanici kilavuzu (rol bazli kullanim adimlari)
 - [ ] Deployment runbook (staging/prod acilis-kapanis, rollback)
+- [ ] RC tag ve release notunun GitHub Release olarak yayinlanmasi
 
 ### P2 - Canliya Gecis Hazirligi
 - [ ] Production env tasarimi (domain, SSL, env secret yonetimi)
@@ -69,13 +82,15 @@
 
 ## Sonraki Asama Plani (Sprint-Next)
 
-**Hedef:** "Tum kritik akislar testle guvence altinda" seviyesine gecmek.
+**Hedef:** Prompt ile tam uyumlu akislari kalite kapisindan gecirip release adayi cikarmak.
 
-1. Branch protection ile PR kalite kapisini zorunlu hale getir.
-2. Sprint sonunda "release aday" etiketi cikart.
+1. Branch protection'i GitHub tarafinda aktif et (zorunlu check: backend + frontend + e2e smoke).
+2. Sprint sonunda "release aday" etiketi cikar.
 
 **Bitis Kriteri:**
 - CI tum joblar yesil
 - E2E kritik akislar yesil
 - Frontend'de ham teknik status metni gorunmuyor
 - Startup adimlari yeni makinede tekrarlanabilir
+- Onay zinciri prompttaki hiyerarsiyle calisiyor
+- Export endpointleri dosya indirme olarak dogrulaniyor

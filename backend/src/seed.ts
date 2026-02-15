@@ -145,6 +145,115 @@ async function main() {
     console.log('   Employee ID: MUDUR001');
     console.log('   Password: Onay1234');
 
+    // Create Stage Approvers for multi-step hierarchy
+    const chiefApproverPassword = await bcrypt.hash('SefOnay1234', 12);
+    const chiefApprover = await prisma.user.upsert({
+        where: { employeeId: 'SEF001' },
+        update: {},
+        create: {
+            employeeId: 'SEF001',
+            email: 'sef@opex5.com',
+            password: chiefApproverPassword,
+            firstName: 'Şef',
+            lastName: 'Onay',
+            position: 'Şef',
+            companyId: company.id,
+            departmentId: department.id,
+            role: 'APPROVER',
+            status: 'PENDING_PASSWORD_CHANGE',
+        },
+    });
+    console.log('✅ Chief Approver created:', chiefApprover.email);
+    console.log('   Employee ID: SEF001');
+    console.log('   Password: SefOnay1234');
+
+    const factoryManagerPassword = await bcrypt.hash('Fabrika1234', 12);
+    const factoryManagerApprover = await prisma.user.upsert({
+        where: { employeeId: 'FAB001' },
+        update: {},
+        create: {
+            employeeId: 'FAB001',
+            email: 'fabrika@opex5.com',
+            password: factoryManagerPassword,
+            firstName: 'Fabrika',
+            lastName: 'Müdürü',
+            position: 'Fabrika Müdürü',
+            companyId: company.id,
+            departmentId: department.id,
+            role: 'APPROVER',
+            status: 'PENDING_PASSWORD_CHANGE',
+        },
+    });
+    console.log('✅ Factory Manager Approver created:', factoryManagerApprover.email);
+    console.log('   Employee ID: FAB001');
+    console.log('   Password: Fabrika1234');
+
+    const gmyPassword = await bcrypt.hash('GmyOnay1234', 12);
+    const gmyApprover = await prisma.user.upsert({
+        where: { employeeId: 'GMY001' },
+        update: {},
+        create: {
+            employeeId: 'GMY001',
+            email: 'gmy@opex5.com',
+            password: gmyPassword,
+            firstName: 'Genel',
+            lastName: 'Müdür Yardımcısı',
+            position: 'GMY',
+            companyId: company.id,
+            departmentId: department.id,
+            role: 'APPROVER',
+            status: 'PENDING_PASSWORD_CHANGE',
+        },
+    });
+    console.log('✅ GMY Approver created:', gmyApprover.email);
+    console.log('   Employee ID: GMY001');
+    console.log('   Password: GmyOnay1234');
+
+    // Create submitter personas for approval matrix tests
+    const operatorPassword = await bcrypt.hash('Operator1234', 12);
+    const operatorUser = await prisma.user.upsert({
+        where: { employeeId: 'OPER001' },
+        update: {},
+        create: {
+            employeeId: 'OPER001',
+            email: 'operator@opex5.com',
+            password: operatorPassword,
+            firstName: 'Operatör',
+            lastName: 'Kullanıcı',
+            position: 'Operatör',
+            companyId: company.id,
+            departmentId: department.id,
+            unitId: unit.id,
+            role: 'USER',
+            status: 'PENDING_PASSWORD_CHANGE',
+        },
+    });
+    console.log('✅ Operator user created:', operatorUser.email);
+    console.log('   Employee ID: OPER001');
+    console.log('   Password: Operator1234');
+
+    const chiefSubmitterPassword = await bcrypt.hash('SefKullanici1234', 12);
+    const chiefSubmitter = await prisma.user.upsert({
+        where: { employeeId: 'SEFUSR001' },
+        update: {},
+        create: {
+            employeeId: 'SEFUSR001',
+            email: 'sef.kullanici@opex5.com',
+            password: chiefSubmitterPassword,
+            firstName: 'Şef',
+            lastName: 'Kullanıcı',
+            position: 'Şef',
+            companyId: company.id,
+            departmentId: department.id,
+            unitId: unit.id,
+            role: 'USER',
+            status: 'PENDING_PASSWORD_CHANGE',
+        },
+    });
+    console.log('✅ Chief submitter user created:', chiefSubmitter.email);
+    console.log('   Employee ID: SEFUSR001');
+    console.log('   Password: SefKullanici1234');
+
     // Create Suggestions
     const suggestionsData = [
         {
@@ -367,8 +476,13 @@ async function main() {
     console.log('├─────────────────┼──────────────┼────────────┤');
     console.log('│ Admin           │ ADMIN001     │ Admin123   │');
     console.log('│ User            │ USER001      │ Test1234   │');
+    console.log('│ User (Operator) │ OPER001      │ Operator1234 │');
+    console.log('│ User (Sef)      │ SEFUSR001    │ SefKullanici1234 │');
     console.log('│ Committee Mgr   │ KOMITE001    │ Komite1234 │');
-    console.log('│ Approver        │ MUDUR001     │ Onay1234   │');
+    console.log('│ Approver (Mgr)  │ MUDUR001     │ Onay1234   │');
+    console.log('│ Approver (Sef)  │ SEF001       │ SefOnay1234 │');
+    console.log('│ Approver (Fab)  │ FAB001       │ Fabrika1234 │');
+    console.log('│ Approver (GMY)  │ GMY001       │ GmyOnay1234 │');
     console.log('└─────────────────┴──────────────┴────────────┘');
 }
 

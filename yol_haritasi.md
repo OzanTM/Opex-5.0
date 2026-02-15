@@ -16,7 +16,7 @@ Bu plan mevcut repo durumu (CI aktif, temel moduller calisiyor) uzerinden
 ---
 
 ## Faz 1 - Stabilizasyon (Su anki sonraki asama)
-**Durum:** In Progress (%95 tamamlandi)  
+**Durum:** In Progress (%97 tamamlandi)  
 **Sure:** 1-2 hafta  
 **Hedef:** Kritik is akislarini testle guvence altina almak
 
@@ -32,7 +32,15 @@ Bu plan mevcut repo durumu (CI aktif, temel moduller calisiyor) uzerinden
 - [x] Lokal CI-benzeri smoke akisi tek komutla calisiyor (`make e2e-smoke`)
 - [ ] PR merge oncesi "backend + frontend + e2e-smoke" zorunlu gecis (branch protection apply bekliyor)
 
-### 3. Guvenlik ve Bagimlilik
+### 3. Prompt Uyumlandirma (Akis + Export)
+- [x] Rapor export endpointleri prompt ile hizalandi (`/export/excel`, `/export/pdf`)
+- [x] Excel/PDF endpointleri dosya indirme (`Content-Disposition`) olarak aktif
+- [x] Eski endpointler (`/export/suggestions`, `/export/projects`) deprecate edilerek korundu
+- [x] Onay zinciri pozisyon bazli cok adimli modele gecirildi
+- [x] Pozisyon bazli onay zinciri icin E2E matrix tamamlandi (operator/uzman/sef)
+- [x] Export endpointleri icin backend contract testleri eklendi
+
+### 4. Guvenlik ve Bagimlilik
 - [x] Frontend dependency guncellemeleri (ozellikle Next.js guvenlik yamasi)
 - [x] Update sonrasi regression kontrolu (build + test + e2e smoke)
 
@@ -40,6 +48,8 @@ Bu plan mevcut repo durumu (CI aktif, temel moduller calisiyor) uzerinden
 - Tum kritik rollerde minimum 1 uctan uca senaryo yesil
 - CI fail oraninda belirgin dusus
 - "Yukleniyor'da kalma" benzeri kritik UI bug tekrar etmiyor
+- Prompttaki onay hiyerarsisi kodda aktif ve testle dogrulanmis
+- Prompttaki export beklentisi (excel/pdf dosya) endpoint seviyesinde karsilanmis
 
 ---
 
@@ -50,11 +60,13 @@ Bu plan mevcut repo durumu (CI aktif, temel moduller calisiyor) uzerinden
 ### 1. Teknik Dokumantasyon
 - [ ] Swagger/OpenAPI endpoint dokumani
 - [ ] Hata kodlari ve ornek response dokumani
+- [x] RC release notes taslagi olusturuldu (`RELEASE_NOTES_RC1.md`)
 
 ### 2. Operasyon Dokumani
 - [ ] Deployment runbook (staging/prod)
 - [ ] Rollback adimlari
 - [ ] Backup/restore adimlari
+- [x] Release checklist taslagi olusturuldu (`release_checklist.md`)
 
 ### 3. Kullanici Dokumani
 - [ ] Rol bazli kullanim kilavuzu
@@ -76,12 +88,12 @@ Bu plan mevcut repo durumu (CI aktif, temel moduller calisiyor) uzerinden
 - [ ] CORS ve rate-limit production ayari
 
 ### 2. Veritabani ve Isletim
-- [ ] DB backup politikasi ve zamanlamasi
-- [ ] Log/monitoring/alarm temel metrikleri
+- [ ] DB backup politikasi ve zamanlamasi (RPO/RTO hedefleri ile)
+- [ ] Log/monitoring/alarm temel metrikleri (SLO/SLA alarmlari ile)
 - [ ] Incident response mini runbook
 
 ### 3. Performans
-- [ ] Kritik endpointlerde response time olcumu
+- [ ] Kritik endpointlerde response time olcumu (p95/p99 hedefleri)
 - [ ] Gerekli noktalarda cache tuning
 
 **Faz 3 Cikis Kriteri:**

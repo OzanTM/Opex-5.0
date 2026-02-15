@@ -50,6 +50,23 @@ interface IAssignProjectRequest {
     projectDescription?: string;
 }
 
+type ApprovalStage = 'CHIEF' | 'MANAGER' | 'FACTORY_MANAGER' | 'GMY';
+
+interface IApprovalCandidate {
+    id: number;
+    email: string;
+    firstName: string;
+    lastName: string;
+    position: string | null;
+    departmentId: number | null;
+}
+
+interface IApprovalChainStep {
+    stage: ApprovalStage;
+    stepType: string;
+    approver: IApprovalCandidate;
+}
+
 export class SuggestionService {
     /**
      * Generate unique reference number
@@ -322,23 +339,27 @@ export class SuggestionService {
 
         if (!user) return;
 
-        // Prefer department approver, fallback to any company approver/admin.
-        const approver =
-            await prisma.user.findFirst({
-                where: {
-                    companyId: user.companyId,
-                    departmentId: user.departmentId ?? undefined,
-                    role: 'APPROVER',
-                },
-            }) ??
-            await prisma.user.findFirst({
-                where: {
-                    companyId: user.companyId,
-                    role: { in: ['APPROVER', 'ADMIN'] },
-                },
-            });
+        const candidates = await prisma.user.findMany({
+            where: {
+                id: { not: userId },
+                companyId: user.companyId,
+                deletedAt: null,
+                role: { in: ['APPROVER', 'ADMIN'] },
+                status: { not: 'DEACTIVATED' },
+            },
+            select: {
+                id: true,
+                email: true,
+                firstName: true,
+                lastName: true,
+                position: true,
+                departmentId: true,
+            },
+        });
 
-        if (!approver) {
+        const chain = this.buildApprovalChain(user.position, user.departmentId, candidates);
+
+        if (chain.length === 0) {
             logger.warn('No approver found while creating approval workflow', { suggestionId, userId });
             return;
         }
@@ -346,27 +367,28 @@ export class SuggestionService {
         const workflow = await prisma.approvalWorkflow.create({
             data: {
                 suggestionId,
-                totalSteps: 1,
+                totalSteps: chain.length,
                 steps: {
-                    create: {
-                        stepNumber: 1,
-                        stepType: 'MANAGER_APPROVAL',
-                        approverId: approver.id,
+                    create: chain.map((step, index) => ({
+                        stepNumber: index + 1,
+                        stepType: step.stepType,
+                        approverId: step.approver.id,
                         status: ApprovalStepStatus.PENDING,
-                    },
+                    })),
                 },
             },
         });
 
         try {
             const suggestion = await prisma.suggestion.findUnique({ where: { id: suggestionId } });
+            const firstApprover = chain[0].approver;
             if (suggestion) {
                 await queueEmail({
-                    to: approver.email,
+                    to: firstApprover.email,
                     subject: `Onayiniz Bekleniyor - ${suggestion.title}`,
                     templateCode: 'APPROVAL_REMINDER',
                     templateData: {
-                        approverName: `${approver.firstName} ${approver.lastName}`,
+                        approverName: `${firstApprover.firstName} ${firstApprover.lastName}`,
                         suggestionTitle: suggestion.title,
                         suggestionUrl: `${config.frontend.url}/suggestions/${suggestion.uuid}`,
                     },
@@ -375,12 +397,126 @@ export class SuggestionService {
         } catch (emailError: any) {
             logger.error('Failed to queue approval notification email', {
                 suggestionId,
-                approverId: approver.id,
+                approverId: chain[0].approver.id,
                 error: emailError.message,
             });
         }
 
-        logger.info('Approval workflow created', { suggestionId, workflowId: workflow.id });
+        logger.info('Approval workflow created', {
+            suggestionId,
+            workflowId: workflow.id,
+            totalSteps: chain.length,
+            stepTypes: chain.map((item) => item.stepType),
+        });
+    }
+
+    private normalizeText(value?: string | null): string {
+        return (value || '')
+            .toLocaleLowerCase('tr-TR')
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '');
+    }
+
+    private includesAny(haystack: string, keywords: string[]): boolean {
+        return keywords.some((keyword) => haystack.includes(keyword));
+    }
+
+    private getStagesBySubmitterPosition(position?: string | null): ApprovalStage[] {
+        const normalized = this.normalizeText(position);
+        const isOperatorOrTechnician = this.includesAny(normalized, ['operator', 'operat', 'teknisyen', 'technician']);
+        const isChief = this.includesAny(normalized, ['sef', 'chief', 'supervisor']);
+
+        if (isOperatorOrTechnician) {
+            return ['CHIEF', 'MANAGER', 'FACTORY_MANAGER', 'GMY'];
+        }
+
+        if (isChief) {
+            return ['MANAGER', 'FACTORY_MANAGER', 'GMY'];
+        }
+
+        return ['MANAGER', 'FACTORY_MANAGER', 'GMY'];
+    }
+
+    private matchesStage(position: string | null, stage: ApprovalStage): boolean {
+        const normalized = this.normalizeText(position);
+        if (!normalized) return false;
+
+        const isChief = this.includesAny(normalized, ['sef', 'chief', 'supervisor']);
+        const isFactoryManager = this.includesAny(normalized, ['fabrika muduru', 'factory manager', 'plant manager']);
+        const isGmy = this.includesAny(normalized, ['gmy', 'genel mudur yardimcisi', 'assistant general manager', 'deputy general manager']);
+        const isManager = this.includesAny(normalized, ['mudur', 'manager', 'director']) && !isFactoryManager && !isGmy;
+
+        switch (stage) {
+            case 'CHIEF':
+                return isChief;
+            case 'MANAGER':
+                return isManager;
+            case 'FACTORY_MANAGER':
+                return isFactoryManager;
+            case 'GMY':
+                return isGmy;
+            default:
+                return false;
+        }
+    }
+
+    private getStepTypeForStage(stage: ApprovalStage): string {
+        switch (stage) {
+            case 'CHIEF':
+                return 'CHIEF_APPROVAL';
+            case 'MANAGER':
+                return 'MANAGER_APPROVAL';
+            case 'FACTORY_MANAGER':
+                return 'FACTORY_MANAGER_APPROVAL';
+            case 'GMY':
+                return 'GMY_APPROVAL';
+            default:
+                return 'MANAGER_APPROVAL';
+        }
+    }
+
+    private pickApprover(
+        stage: ApprovalStage,
+        submitterDepartmentId: number | null,
+        candidates: IApprovalCandidate[],
+        usedApproverIds: Set<number>
+    ): IApprovalCandidate | null {
+        const available = candidates.filter((candidate) => !usedApproverIds.has(candidate.id));
+        if (available.length === 0) return null;
+
+        const stageMatches = available.filter((candidate) => this.matchesStage(candidate.position, stage));
+        const stageAndDepartmentMatch = stageMatches.find((candidate) => candidate.departmentId === submitterDepartmentId);
+        if (stageAndDepartmentMatch) return stageAndDepartmentMatch;
+        if (stageMatches.length > 0) return stageMatches[0];
+
+        const departmentFallback = available.find((candidate) => candidate.departmentId === submitterDepartmentId);
+        if (departmentFallback) return departmentFallback;
+
+        return available[0];
+    }
+
+    private buildApprovalChain(
+        submitterPosition: string | null,
+        submitterDepartmentId: number | null,
+        candidates: IApprovalCandidate[]
+    ): IApprovalChainStep[] {
+        const stages = this.getStagesBySubmitterPosition(submitterPosition);
+        const usedApproverIds = new Set<number>();
+        const chain: IApprovalChainStep[] = [];
+
+        for (const stage of stages) {
+            const selected = this.pickApprover(stage, submitterDepartmentId, candidates, usedApproverIds);
+            if (!selected) break;
+
+            usedApproverIds.add(selected.id);
+            chain.push({
+                stage,
+                stepType: this.getStepTypeForStage(stage),
+                approver: selected,
+            });
+        }
+
+        return chain;
     }
 
     /**

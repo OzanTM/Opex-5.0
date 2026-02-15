@@ -7,6 +7,8 @@ import { Request, Response, NextFunction } from 'express';
 import * as reportService from '../services/report.service';
 import { sendSuccess, sendError } from '../utils/response';
 import logger from '../utils/logger';
+import PDFDocument from 'pdfkit';
+import ExcelJS from 'exceljs';
 
 // ============================================
 // DASHBOARD
@@ -151,20 +153,163 @@ export const getApprovalStats = async (req: Request, res: Response, next: NextFu
 // EXPORT
 // ============================================
 
+const buildDateRangeFromQuery = (query: Request['query']) => ({
+    startDate: query.startDate ? new Date(query.startDate as string) : undefined,
+    endDate: query.endDate ? new Date(query.endDate as string) : undefined,
+});
+
+const getFileSafeTimestamp = (): string => new Date().toISOString().replace(/[:.]/g, '-');
+
+const mapSuggestionRows = (suggestions: any[]) =>
+    suggestions.map((item) => ({
+        'Referans No': item.referenceNumber,
+        'Baslik': item.title,
+        Durum: item.status,
+        Kategori: item.category || '',
+        Calisan: `${item.user?.firstName || ''} ${item.user?.lastName || ''}`.trim(),
+        'Sicil No': item.user?.employeeId || '',
+        Sirket: item.company?.name || '',
+        Departman: item.department?.name || '',
+        'Tahmini Maliyet': item.estimatedCost ?? '',
+        'Tahmini Kazanc': item.estimatedSavings ?? '',
+        'Olusturma Tarihi': item.createdAt ? new Date(item.createdAt).toISOString() : '',
+    }));
+
+const mapProjectRows = (projects: any[]) =>
+    projects.map((item) => ({
+        Proje: item.name,
+        Durum: item.status,
+        Ilerleme: `${item.progress ?? 0}%`,
+        Lider: `${item.projectLeader?.firstName || ''} ${item.projectLeader?.lastName || ''}`.trim(),
+        'Lider Sicil No': item.projectLeader?.employeeId || '',
+        'Bagli Oneri Ref': item.suggestion?.referenceNumber || '',
+        'Bagli Oneri Baslik': item.suggestion?.title || '',
+        Sirket: item.suggestion?.company?.name || '',
+        'Gercek Maliyet': item.actualCost ?? '',
+        'Gercek Kazanc': item.actualSavings ?? '',
+        'Baslangic Tarihi': item.startDate ? new Date(item.startDate).toISOString() : '',
+        'Tahmini Bitis': item.estimatedEndDate ? new Date(item.estimatedEndDate).toISOString() : '',
+        'Gercek Bitis': item.actualEndDate ? new Date(item.actualEndDate).toISOString() : '',
+    }));
+
+const addPdfSection = (doc: PDFKit.PDFDocument, title: string, rows: Record<string, any>[]) => {
+    doc.moveDown().fontSize(13).text(title, { underline: true });
+    doc.moveDown(0.5).fontSize(10).text(`Toplam: ${rows.length}`);
+
+    rows.forEach((row, idx) => {
+        doc.moveDown(0.3).fontSize(10).text(`${idx + 1}.`);
+        Object.entries(row).forEach(([key, value]) => {
+            doc.fontSize(9).text(`- ${key}: ${value ?? ''}`, { indent: 12 });
+        });
+    });
+};
+
+/**
+ * Export report data as Excel file
+ * GET /api/v1/reports/export/excel
+ */
+export const exportExcel = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const dateRange = buildDateRangeFromQuery(req.query);
+        const companyId = req.query.companyId ? parseInt(req.query.companyId as string) : undefined;
+        const status = req.query.status as string | undefined;
+
+        const [suggestions, projects] = await Promise.all([
+            reportService.getSuggestionsForExport(dateRange, companyId, status),
+            reportService.getProjectsForExport(dateRange, status),
+        ]);
+
+        const suggestionRows = mapSuggestionRows(suggestions);
+        const projectRows = mapProjectRows(projects);
+        const workbook = new ExcelJS.Workbook();
+        const suggestionSheet = workbook.addWorksheet('Oneriler');
+        const projectSheet = workbook.addWorksheet('Projeler');
+
+        if (suggestionRows.length > 0) {
+            suggestionSheet.columns = Object.keys(suggestionRows[0]).map((key) => ({
+                header: key,
+                key,
+                width: 24,
+            }));
+            suggestionRows.forEach((row) => suggestionSheet.addRow(row));
+        } else {
+            suggestionSheet.addRow(['Kayit bulunamadi']);
+        }
+
+        if (projectRows.length > 0) {
+            projectSheet.columns = Object.keys(projectRows[0]).map((key) => ({
+                header: key,
+                key,
+                width: 24,
+            }));
+            projectRows.forEach((row) => projectSheet.addRow(row));
+        } else {
+            projectSheet.addRow(['Kayit bulunamadi']);
+        }
+
+        const buffer = await workbook.xlsx.writeBuffer();
+        const fileName = `opex-rapor-${getFileSafeTimestamp()}.xlsx`;
+
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+        return res.send(Buffer.from(buffer));
+    } catch (error) {
+        logger.error('Export excel error:', error);
+        return sendError(res, 'Excel dosyasi olusturulurken hata olustu', 500);
+    }
+};
+
+/**
+ * Export report data as PDF file
+ * GET /api/v1/reports/export/pdf
+ */
+export const exportPdf = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const dateRange = buildDateRangeFromQuery(req.query);
+        const companyId = req.query.companyId ? parseInt(req.query.companyId as string) : undefined;
+        const status = req.query.status as string | undefined;
+
+        const [suggestions, projects] = await Promise.all([
+            reportService.getSuggestionsForExport(dateRange, companyId, status),
+            reportService.getProjectsForExport(dateRange, status),
+        ]);
+
+        const suggestionRows = mapSuggestionRows(suggestions);
+        const projectRows = mapProjectRows(projects);
+        const fileName = `opex-rapor-${getFileSafeTimestamp()}.pdf`;
+
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+
+        const doc = new PDFDocument({ margin: 40, size: 'A4' });
+        doc.pipe(res);
+
+        doc.fontSize(16).text('OpEx 5.0 Rapor Disa Aktarim');
+        doc.moveDown(0.5).fontSize(10).text(`Uretilme Tarihi: ${new Date().toISOString()}`);
+        addPdfSection(doc, 'Oneriler', suggestionRows);
+        addPdfSection(doc, 'Projeler', projectRows);
+        doc.end();
+        return;
+    } catch (error) {
+        logger.error('Export pdf error:', error);
+        return sendError(res, 'PDF dosyasi olusturulurken hata olustu', 500);
+    }
+};
+
 /**
  * Export suggestions
  * GET /api/v1/reports/export/suggestions
  */
 export const exportSuggestions = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const dateRange = {
-            startDate: req.query.startDate ? new Date(req.query.startDate as string) : undefined,
-            endDate: req.query.endDate ? new Date(req.query.endDate as string) : undefined,
-        };
+        const dateRange = buildDateRangeFromQuery(req.query);
         const companyId = req.query.companyId ? parseInt(req.query.companyId as string) : undefined;
         const status = req.query.status as string;
 
         const suggestions = await reportService.getSuggestionsForExport(dateRange, companyId, status);
+        res.setHeader('Deprecation', 'true');
+        res.setHeader('Sunset', 'Wed, 31 Dec 2026 23:59:59 GMT');
+        res.setHeader('Link', '</api/v1/reports/export/excel>; rel="successor-version"');
         return sendSuccess(res, suggestions, 'Öneri verileri');
     } catch (error) {
         logger.error('Export suggestions error:', error);
@@ -178,13 +323,13 @@ export const exportSuggestions = async (req: Request, res: Response, next: NextF
  */
 export const exportProjects = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const dateRange = {
-            startDate: req.query.startDate ? new Date(req.query.startDate as string) : undefined,
-            endDate: req.query.endDate ? new Date(req.query.endDate as string) : undefined,
-        };
+        const dateRange = buildDateRangeFromQuery(req.query);
         const status = req.query.status as string;
 
         const projects = await reportService.getProjectsForExport(dateRange, status);
+        res.setHeader('Deprecation', 'true');
+        res.setHeader('Sunset', 'Wed, 31 Dec 2026 23:59:59 GMT');
+        res.setHeader('Link', '</api/v1/reports/export/pdf>; rel="successor-version"');
         return sendSuccess(res, projects, 'Proje verileri');
     } catch (error) {
         logger.error('Export projects error:', error);

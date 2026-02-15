@@ -1,6 +1,15 @@
 import type { Page } from '@playwright/test';
 
-type RoleKey = 'USER' | 'COMMITTEE_MANAGER' | 'APPROVER' | 'ADMIN';
+type RoleKey =
+    | 'USER'
+    | 'OPERATOR_USER'
+    | 'CHIEF_USER'
+    | 'COMMITTEE_MANAGER'
+    | 'APPROVER'
+    | 'CHIEF_APPROVER'
+    | 'FACTORY_MANAGER_APPROVER'
+    | 'GMY_APPROVER'
+    | 'ADMIN';
 
 interface AccountCredentials {
     employeeId: string;
@@ -14,6 +23,16 @@ const ACCOUNTS: Record<RoleKey, AccountCredentials> = {
         initialPassword: 'Test1234',
         updatedPassword: 'Test12345',
     },
+    OPERATOR_USER: {
+        employeeId: 'OPER001',
+        initialPassword: 'Operator1234',
+        updatedPassword: 'Operator12345',
+    },
+    CHIEF_USER: {
+        employeeId: 'SEFUSR001',
+        initialPassword: 'SefKullanici1234',
+        updatedPassword: 'SefKullanici12345',
+    },
     COMMITTEE_MANAGER: {
         employeeId: 'KOMITE001',
         initialPassword: 'Komite1234',
@@ -23,6 +42,21 @@ const ACCOUNTS: Record<RoleKey, AccountCredentials> = {
         employeeId: 'MUDUR001',
         initialPassword: 'Onay1234',
         updatedPassword: 'Onay12345',
+    },
+    CHIEF_APPROVER: {
+        employeeId: 'SEF001',
+        initialPassword: 'SefOnay1234',
+        updatedPassword: 'SefOnay12345',
+    },
+    FACTORY_MANAGER_APPROVER: {
+        employeeId: 'FAB001',
+        initialPassword: 'Fabrika1234',
+        updatedPassword: 'Fabrika12345',
+    },
+    GMY_APPROVER: {
+        employeeId: 'GMY001',
+        initialPassword: 'GmyOnay1234',
+        updatedPassword: 'GmyOnay12345',
     },
     ADMIN: {
         employeeId: 'ADMIN001',

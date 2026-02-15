@@ -25,7 +25,7 @@ OpEx 5.0, 5000+ çalışan kapasiteli kurumsal şirketler için tasarlanmış ka
 - **Auth**: JWT + bcrypt
 
 ### Frontend
-- **Framework**: Next.js 14 (App Router)
+- **Framework**: Next.js 15 (App Router)
 - **UI Library**: React 18
 - **Styling**: Tailwind CSS
 - **State Management**: Zustand
@@ -189,6 +189,12 @@ POST   /api/v1/suggestions/:id/submit
 POST   /api/v1/suggestions/:id/committee-review
 POST   /api/v1/suggestions/:id/approve
 POST   /api/v1/suggestions/:id/reject
+```
+
+### Reports (Export)
+```
+GET /api/v1/reports/export/excel
+GET /api/v1/reports/export/pdf
 ```
 
 ## 📈 Performans Hedefleri
