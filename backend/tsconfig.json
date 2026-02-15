@@ -1,0 +1,73 @@
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "lib": [
+            "ES2022"
+        ],
+        "outDir": "./dist",
+        "rootDir": "./src",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "resolveJsonModule": true,
+        "declaration": true,
+        "declarationMap": true,
+        "sourceMap": true,
+        "incremental": true,
+        "noImplicitAny": true,
+        "strictNullChecks": true,
+        "strictFunctionTypes": true,
+        "noUnusedLocals": false,
+        "noUnusedParameters": false,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
+        "isolatedModules": true,
+        "allowSyntheticDefaultImports": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "baseUrl": ".",
+        "paths": {
+            "@/*": [
+                "src/*"
+            ],
+            "@config/*": [
+                "src/config/*"
+            ],
+            "@controllers/*": [
+                "src/controllers/*"
+            ],
+            "@models/*": [
+                "src/models/*"
+            ],
+            "@routes/*": [
+                "src/routes/*"
+            ],
+            "@services/*": [
+                "src/services/*"
+            ],
+            "@middleware/*": [
+                "src/middleware/*"
+            ],
+            "@utils/*": [
+                "src/utils/*"
+            ],
+            "@validators/*": [
+                "src/validators/*"
+            ],
+            "@types/*": [
+                "src/types/*"
+            ]
+        }
+    },
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist",
+        "tests"
+    ]
+}

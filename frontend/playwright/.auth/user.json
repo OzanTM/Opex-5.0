@@ -1,0 +1,22 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://localhost:3000",
+      "localStorage": [
+        {
+          "name": "accessToken",
+          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZW1wbG95ZWVJZCI6IlVTRVIwMDEiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc3MTE1OTMwNSwiZXhwIjoxNzcxNzY0MTA1fQ.5R6dKHShpxTQF_xwkS6Q7dhHZfYoKNYD2khn31gfyQQ"
+        },
+        {
+          "name": "opex-auth",
+          "value": "{\"state\":{\"user\":{\"id\":3,\"uuid\":\"255195e2-e365-4bdb-bb4f-230ca8c7312d\",\"employeeId\":\"USER001\",\"email\":\"user@opex5.com\",\"firstName\":\"Test\",\"lastName\":\"Kullanıcı\",\"position\":\"Uzman\",\"role\":\"USER\",\"status\":\"ACTIVE\",\"company\":{\"id\":1,\"code\":\"OPEX\",\"name\":\"OpEx Şirketi\",\"description\":\"Ana şirket\",\"isActive\":true,\"createdAt\":\"2026-02-15T12:01:41.542Z\",\"updatedAt\":\"2026-02-15T12:01:41.542Z\"},\"department\":{\"id\":1,\"code\":\"IT\",\"name\":\"Bilgi Teknolojileri\",\"description\":\"IT Departmanı\",\"companyId\":1,\"isActive\":true,\"createdAt\":\"2026-02-15T12:01:41.564Z\",\"updatedAt\":\"2026-02-15T12:01:41.564Z\"},\"unit\":{\"id\":1,\"code\":\"IT-DEV\",\"name\":\"Yazılım Geliştirme\",\"description\":\"Yazılım Geliştirme Şefliği\",\"departmentId\":1,\"isActive\":true,\"createdAt\":\"2026-02-15T12:01:41.571Z\",\"updatedAt\":\"2026-02-15T12:01:41.571Z\"}},\"accessToken\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZW1wbG95ZWVJZCI6IlVTRVIwMDEiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc3MTE1OTMwNSwiZXhwIjoxNzcxNzY0MTA1fQ.5R6dKHShpxTQF_xwkS6Q7dhHZfYoKNYD2khn31gfyQQ\",\"refreshToken\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Mywibm9uY2UiOiJhZDgyOGZkOC0wMjlmLTQzMWEtOWFmMS03YTA3NDRhMTkyMWEiLCJpYXQiOjE3NzExNTkzMDUsImV4cCI6MTc3Mzc1MTMwNX0.uD1GKKhJxwa5AKnPXwsnzmF6m9iRlcvcyCilM0cxIhU\",\"isAuthenticated\":true,\"isLoading\":false},\"version\":0}"
+        },
+        {
+          "name": "refreshToken",
+          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Mywibm9uY2UiOiJhZDgyOGZkOC0wMjlmLTQzMWEtOWFmMS03YTA3NDRhMTkyMWEiLCJpYXQiOjE3NzExNTkzMDUsImV4cCI6MTc3Mzc1MTMwNX0.uD1GKKhJxwa5AKnPXwsnzmF6m9iRlcvcyCilM0cxIhU"
+        }
+      ]
+    }
+  ]
+}

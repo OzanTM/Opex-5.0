@@ -1,0 +1,519 @@
+// OpEx 5.0 - Enterprise Suggestion Management System
+// Database Schema for SQLite (Development)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// USER MANAGEMENT
+// ============================================
+
+model User {
+  id                  Int       @id @default(autoincrement())
+  uuid                String    @unique @default(uuid())
+  employeeId          String    @unique @map("employee_id")
+  email               String    @unique
+  password            String
+  firstName           String    @map("first_name")
+  lastName            String    @map("last_name")
+  phone               String?
+  position            String?
+  avatar              String?
+  
+  // Organizational Structure
+  companyId           Int       @map("company_id")
+  company             Company   @relation(fields: [companyId], references: [id])
+  departmentId        Int?      @map("department_id")
+  department          Department? @relation(fields: [departmentId], references: [id])
+  unitId              Int?      @map("unit_id")
+  unit                Unit?     @relation(fields: [unitId], references: [id])
+  
+  // Role & Status (stored as strings for SQLite)
+  role                String    @default("USER")
+  status              String    @default("PENDING_PASSWORD_CHANGE")
+  
+  // Authentication
+  failedLoginAttempts Int       @default(0) @map("failed_login_attempts")
+  lockedUntil         DateTime? @map("locked_until")
+  lastLoginAt         DateTime? @map("last_login_at")
+  lastPasswordChange  DateTime? @map("last_password_change")
+  passwordResetToken  String?   @unique @map("password_reset_token")
+  passwordResetExpires DateTime? @map("password_reset_expires")
+  
+  // Session Management
+  activeSessions      Int       @default(0) @map("active_sessions")
+  
+  // Timestamps
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+  deletedAt           DateTime? @map("deleted_at")
+  
+  // Relations
+  suggestions         Suggestion[]
+  approvalSteps       ApprovalStep[]
+  assignedProjects    Project[] @relation("ProjectLeader")
+  projectTeamMembers  ProjectTeamMember[]
+  approvalHistory     ApprovalHistory[] @relation("ApprovalHistoryUser")
+  notifications       Notification[]
+  auditLogs           AuditLog[] @relation("AuditLogUser")
+  refreshTokens       RefreshToken[]
+  
+  @@index([employeeId])
+  @@index([email])
+  @@map("users")
+}
+
+model RefreshToken {
+  id        Int       @id @default(autoincrement())
+  token     String    @unique
+  userId    Int       @map("user_id")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime  @map("expires_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  revokedAt DateTime? @map("revoked_at")
+  
+  @@index([token])
+  @@map("refresh_tokens")
+}
+
+// ============================================
+// ORGANIZATIONAL STRUCTURE
+// ============================================
+
+model Company {
+  id          Int       @id @default(autoincrement())
+  code        String    @unique
+  name        String
+  description String?
+  isActive    Boolean   @default(true) @map("is_active")
+  
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  
+  users       User[]
+  departments Department[]
+  suggestions Suggestion[]
+  
+  @@map("companies")
+}
+
+model Department {
+  id          Int       @id @default(autoincrement())
+  code        String    @unique
+  name        String
+  description String?
+  companyId   Int       @map("company_id")
+  company     Company   @relation(fields: [companyId], references: [id])
+  isActive    Boolean   @default(true) @map("is_active")
+  
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  
+  users       User[]
+  units       Unit[]
+  suggestions Suggestion[]
+  
+  @@index([companyId])
+  @@map("departments")
+}
+
+model Unit {
+  id           Int        @id @default(autoincrement())
+  code         String     @unique
+  name         String
+  description  String?
+  departmentId Int        @map("department_id")
+  department   Department @relation(fields: [departmentId], references: [id])
+  isActive     Boolean    @default(true) @map("is_active")
+  
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+  
+  users        User[]
+  suggestions  Suggestion[]
+  
+  @@index([departmentId])
+  @@map("units")
+}
+
+// ============================================
+// SUGGESTION MANAGEMENT
+// ============================================
+
+model Suggestion {
+  id                   Int       @id @default(autoincrement())
+  uuid                 String    @unique @default(uuid())
+  referenceNumber      String    @unique @map("reference_number")
+  
+  // Owner
+  userId               Int       @map("user_id")
+  user                 User      @relation(fields: [userId], references: [id])
+  
+  // Organization
+  companyId            Int       @map("company_id")
+  company              Company   @relation(fields: [companyId], references: [id])
+  departmentId         Int?      @map("department_id")
+  department           Department? @relation(fields: [departmentId], references: [id])
+  unitId               Int?      @map("unit_id")
+  unit                 Unit?     @relation(fields: [unitId], references: [id])
+  
+  // Content
+  title                String    @map("suggestion_title")
+  currentSituation     String    @map("current_situation")
+  proposedSolution     String    @map("proposed_solution")
+  expectedBenefits     String?   @map("expected_benefits")
+  
+  // Category & Classification (stored as strings for SQLite)
+  category             String?
+  gainCategories       String    @map("gain_categories") // JSON array stored as string
+  
+  // Financial Estimates
+  estimatedCost        Float?    @map("estimated_cost")
+  estimatedSavings     Float?    @map("estimated_savings")
+  estimatedTimeSavings Int?      @map("estimated_time_savings")
+  currency             String    @default("TRY")
+  
+  // Status
+  status               String    @default("DRAFT")
+  statusHistory        StatusHistory[]
+  
+  // Committee Review
+  committeeReviewDate  DateTime? @map("committee_review_date")
+  committeeReviewerId  Int?      @map("committee_reviewer_id")
+  committeeNotes       String?   @map("committee_notes")
+  revisionRequestReason String?  @map("revision_request_reason")
+  rejectionReason      String?   @map("rejection_reason")
+  
+  // Project Assignment
+  project              Project?
+  
+  // Approval Workflow
+  approvalWorkflow     ApprovalWorkflow?
+  
+  // Documents
+  documents            Document[]
+  
+  // Timestamps
+  submittedAt          DateTime? @map("submitted_at")
+  approvedAt           DateTime? @map("approved_at")
+  completedAt          DateTime? @map("completed_at")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+  deletedAt            DateTime? @map("deleted_at")
+  
+  @@index([userId])
+  @@index([companyId])
+  @@index([status])
+  @@index([referenceNumber])
+  @@map("suggestions")
+}
+
+model StatusHistory {
+  id            Int       @id @default(autoincrement())
+  suggestionId  Int       @map("suggestion_id")
+  suggestion    Suggestion @relation(fields: [suggestionId], references: [id], onDelete: Cascade)
+  fromStatus    String    @map("from_status")
+  toStatus      String    @map("to_status")
+  changedById   Int       @map("changed_by_id")
+  reason        String?
+  createdAt     DateTime  @default(now()) @map("created_at")
+  
+  @@index([suggestionId])
+  @@map("status_history")
+}
+
+model Document {
+  id            Int        @id @default(autoincrement())
+  uuid          String     @unique @default(uuid())
+  suggestionId  Int        @map("suggestion_id")
+  suggestion    Suggestion @relation(fields: [suggestionId], references: [id], onDelete: Cascade)
+  
+  fileName      String     @map("file_name")
+  originalName  String     @map("original_name")
+  filePath      String     @map("file_path")
+  fileSize      Int        @map("file_size")
+  mimeType      String     @map("mime_type")
+  
+  uploadedById  Int        @map("uploaded_by_id")
+  
+  createdAt     DateTime   @default(now()) @map("created_at")
+  deletedAt     DateTime?  @map("deleted_at")
+  
+  @@index([suggestionId])
+  @@map("documents")
+}
+
+// ============================================
+// APPROVAL WORKFLOW
+// ============================================
+
+model ApprovalWorkflow {
+  id            Int             @id @default(autoincrement())
+  suggestionId  Int             @unique @map("suggestion_id")
+  suggestion    Suggestion      @relation(fields: [suggestionId], references: [id], onDelete: Cascade)
+  
+  currentStep   Int             @default(1) @map("current_step")
+  totalSteps    Int             @map("total_steps")
+  
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+  completedAt   DateTime?       @map("completed_at")
+  
+  steps         ApprovalStep[]
+  
+  @@index([suggestionId])
+  @@map("approval_workflows")
+}
+
+model ApprovalStep {
+  id              Int       @id @default(autoincrement())
+  workflowId      Int       @map("workflow_id")
+  workflow        ApprovalWorkflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  
+  stepNumber      Int       @map("step_number")
+  stepType        String    @map("step_type")
+  
+  approverId      Int       @map("approver_id")
+  approver        User      @relation(fields: [approverId], references: [id])
+  
+  status          String    @default("PENDING")
+  
+  approvedAt      DateTime? @map("approved_at")
+  rejectedAt      DateTime? @map("rejected_at")
+  rejectionReason String?   @map("rejection_reason")
+  notes           String?
+  
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  
+  history         ApprovalHistory[]
+  
+  @@unique([workflowId, stepNumber])
+  @@index([workflowId])
+  @@index([approverId])
+  @@map("approval_steps")
+}
+
+model ApprovalHistory {
+  id          Int           @id @default(autoincrement())
+  stepId      Int           @map("step_id")
+  step        ApprovalStep  @relation(fields: [stepId], references: [id], onDelete: Cascade)
+  
+  action      String
+  actionById  Int           @map("action_by_id")
+  actionBy    User          @relation("ApprovalHistoryUser", fields: [actionById], references: [id])
+  
+  notes       String?
+  
+  createdAt   DateTime      @default(now()) @map("created_at")
+  
+  @@index([stepId])
+  @@map("approval_history")
+}
+
+// ============================================
+// PROJECT MANAGEMENT
+// ============================================
+
+model Project {
+  id                  Int       @id @default(autoincrement())
+  uuid                String    @unique @default(uuid())
+  
+  suggestionId        Int       @unique @map("suggestion_id")
+  suggestion          Suggestion @relation(fields: [suggestionId], references: [id])
+  
+  name                String
+  description         String?
+  
+  projectLeaderId     Int       @map("project_leader_id")
+  projectLeader       User      @relation("ProjectLeader", fields: [projectLeaderId], references: [id])
+  
+  teamMembers         ProjectTeamMember[]
+  
+  status              String    @default("PLANNED")
+  progress            Int       @default(0)
+  
+  startDate           DateTime? @map("start_date")
+  estimatedEndDate    DateTime? @map("estimated_end_date")
+  actualEndDate       DateTime? @map("actual_end_date")
+  
+  // Actual Results
+  actualCost          Float?    @map("actual_cost")
+  actualSavings       Float?    @map("actual_savings")
+  
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+  
+  milestones          ProjectMilestone[]
+  
+  @@index([projectLeaderId])
+  @@map("projects")
+}
+
+model ProjectTeamMember {
+  id          Int       @id @default(autoincrement())
+  projectId   Int       @map("project_id")
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId      Int       @map("user_id")
+  user        User      @relation(fields: [userId], references: [id])
+  role        String?
+  
+  assignedAt  DateTime  @default(now()) @map("assigned_at")
+  removedAt   DateTime? @map("removed_at")
+  
+  @@unique([projectId, userId])
+  @@index([projectId])
+  @@map("project_team_members")
+}
+
+model ProjectMilestone {
+  id              Int       @id @default(autoincrement())
+  projectId       Int       @map("project_id")
+  project         Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  title           String
+  description     String?
+  dueDate         DateTime? @map("due_date")
+  completedDate   DateTime? @map("completed_date")
+  isCompleted     Boolean   @default(false) @map("is_completed")
+  
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  
+  @@index([projectId])
+  @@map("project_milestones")
+}
+
+// ============================================
+// NOTIFICATIONS
+// ============================================
+
+model Notification {
+  id              Int       @id @default(autoincrement())
+  uuid            String    @unique @default(uuid())
+  
+  userId          Int       @map("user_id")
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  type            String
+  title           String
+  message         String
+  data            String?   // JSON stored as string
+  
+  isRead          Boolean   @default(false) @map("is_read")
+  readAt          DateTime? @map("read_at")
+  
+  emailSent       Boolean   @default(false) @map("email_sent")
+  emailSentAt     DateTime? @map("email_sent_at")
+  
+  createdAt       DateTime  @default(now()) @map("created_at")
+  
+  @@index([userId])
+  @@index([isRead])
+  @@map("notifications")
+}
+
+// ============================================
+// AUDIT LOGGING
+// ============================================
+
+model AuditLog {
+  id              Int       @id @default(autoincrement())
+  
+  userId          Int?      @map("user_id")
+  user            User?     @relation("AuditLogUser", fields: [userId], references: [id])
+  
+  action          String
+  entity          String
+  entityId        Int?      @map("entity_id")
+  
+  ipAddress       String?   @map("ip_address")
+  userAgent       String?   @map("user_agent")
+  
+  oldValue        String?   @map("old_value") // JSON stored as string
+  newValue        String?   @map("new_value") // JSON stored as string
+  
+  createdAt       DateTime  @default(now()) @map("created_at")
+  
+  @@index([userId])
+  @@index([action])
+  @@index([entity])
+  @@map("audit_logs")
+}
+
+// ============================================
+// SYSTEM SETTINGS
+// ============================================
+
+model SystemSetting {
+  id              Int       @id @default(autoincrement())
+  key             String    @unique
+  value           String
+  description     String?
+  
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  
+  @@map("system_settings")
+}
+
+// ============================================
+// EMAIL TEMPLATES
+// ============================================
+
+model EmailTemplate {
+  id              Int       @id @default(autoincrement())
+  code            String    @unique
+  name            String
+  subject         String
+  body            String
+  variables       String    // JSON array stored as string
+  
+  isActive        Boolean   @default(true) @map("is_active")
+  
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  
+  @@map("email_templates")
+}
+
+// ============================================
+// EMAIL QUEUE
+// ============================================
+
+model EmailQueue {
+  id              Int       @id @default(autoincrement())
+  
+  to              String
+  cc              String?
+  bcc             String?
+  subject         String
+  
+  templateCode    String?   @map("template_code")
+  templateData    String?   @map("template_data") // JSON stored as string
+  
+  body            String?
+  
+  status          String    @default("PENDING")
+  priority        Int       @default(5)
+  
+  attempts        Int       @default(0)
+  maxAttempts     Int       @default(3) @map("max_attempts")
+  lastAttemptAt   DateTime? @map("last_attempt_at")
+  errorMessage    String?   @map("error_message")
+  
+  sentAt          DateTime? @map("sent_at")
+  
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  
+  @@index([status])
+  @@index([createdAt])
+  @@map("email_queue")
+}

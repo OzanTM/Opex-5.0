@@ -1,0 +1,132 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  backend:
+    name: Backend Build and Test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: opex_user
+          POSTGRES_PASSWORD: opex_password
+          POSTGRES_DB: opex_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U opex_user -d opex_db"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    defaults:
+      run:
+        working-directory: backend
+
+    env:
+      NODE_ENV: test
+      PORT: 3001
+      API_PREFIX: /api/v1
+      DATABASE_URL: postgresql://opex_user:opex_password@localhost:5432/opex_db?schema=public
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ""
+      JWT_SECRET: ci-jwt-secret
+      JWT_EXPIRES_IN: 7d
+      JWT_REFRESH_EXPIRES_IN: 30d
+      FRONTEND_URL: http://localhost:3000
+      EMAIL_PROVIDER: sendgrid
+      SENDGRID_API_KEY: ci-dummy-sendgrid-key
+      EMAIL_FROM: noreply@opex5.com
+      EMAIL_FROM_NAME: OpEx 5.0
+      UPLOAD_PROVIDER: local
+      UPLOAD_DIR: ./uploads
+      MAX_FILE_SIZE: 10485760
+      ALLOWED_FILE_TYPES: pdf,doc,docx,xls,xlsx,jpg,png,gif
+      LOG_LEVEL: info
+      LOG_FILE: logs/opex.log
+      BCRYPT_SALT_ROUNDS: 12
+      MAX_FAILED_LOGINS: 5
+      LOCKOUT_DURATION: 900000
+      COMPANY_NAME: OpEx Company
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Apply schema to test DB
+        run: npx prisma migrate reset --force --skip-seed
+
+      - name: Seed database
+        run: npm run db:seed
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test -- --runInBand
+
+  frontend:
+    name: Frontend Build and Test
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    env:
+      NODE_ENV: test
+      NEXT_PUBLIC_API_URL: http://localhost:3001/api/v1
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test -- --runInBand
