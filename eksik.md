@@ -1,7 +1,7 @@
 # OpEx 5.0 - Guncel Durum ve Eksikler
 
 **Son Guncelleme:** 15 Subat 2026  
-**Genel Durum:** %99 (Canliya gecis oncesi stabilizasyon asamasi)
+**Genel Durum:** %99.5 (Canliya gecis oncesi stabilizasyon asamasi)
 
 ---
 
@@ -16,6 +16,7 @@
 - [x] Playwright E2E smoke senaryolari eklendi (auth/rbac + suggestion lifecycle)
 - [x] CI'a `e2e_smoke` isi eklendi (backend+frontend ayağa kalkip smoke test kosuyor)
 - [x] Uctan uca onay akisi eklendi (USER -> KOMITE onayi -> MUDUR onayi)
+- [x] Frontend guvenlik guncellemeleri tamamlandi (Next.js 15.5.10, audit: 0 vulnerability)
 
 ---
 
@@ -50,7 +51,7 @@
   - [x] Oneri olusturma -> komite degerlendirme -> mudur onayi tam zinciri
   - [x] Komite/yonetici red-revizyon varyantlari
 - [x] Full sistem smoke testi tek komut (`make e2e-smoke`) haline getirildi
-- [ ] Frontend bagimlilik guvenlik guncellemeleri yapilacak (ozellikle Next.js)
+- [x] Frontend bagimlilik guvenlik guncellemeleri yapildi (ozellikle Next.js)
 - [ ] Branch protection ile PR kalite kapisi zorunlu hale getirilecek
 
 ### P1 - Kisa Vade
@@ -69,9 +70,8 @@
 
 **Hedef:** "Tum kritik akislar testle guvence altinda" seviyesine gecmek.
 
-1. Security update sprinti yap (Next.js ve ilgili paketler).
-2. Branch protection ile PR kalite kapisini zorunlu hale getir.
-3. Sprint sonunda "release aday" etiketi cikart.
+1. Branch protection ile PR kalite kapisini zorunlu hale getir.
+2. Sprint sonunda "release aday" etiketi cikart.
 
 **Bitis Kriteri:**
 - CI tum joblar yesil

@@ -1,7 +1,8 @@
+const path = require('path');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: true,
-    swcMinify: true,
 
     // Environment variables exposed to the browser
     env: {
@@ -51,6 +52,7 @@ const nextConfig = {
 
     // Output configuration for Docker
     output: 'standalone',
+    outputFileTracingRoot: path.resolve(__dirname),
 };
 
 module.exports = nextConfig;

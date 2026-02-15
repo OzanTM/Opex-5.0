@@ -16,7 +16,7 @@ Bu plan mevcut repo durumu (CI aktif, temel moduller calisiyor) uzerinden
 ---
 
 ## Faz 1 - Stabilizasyon (Su anki sonraki asama)
-**Durum:** In Progress (%90 tamamlandi)  
+**Durum:** In Progress (%95 tamamlandi)  
 **Sure:** 1-2 hafta  
 **Hedef:** Kritik is akislarini testle guvence altina almak
 
@@ -33,8 +33,8 @@ Bu plan mevcut repo durumu (CI aktif, temel moduller calisiyor) uzerinden
 - [ ] PR merge oncesi "backend + frontend + e2e-smoke" zorunlu gecis
 
 ### 3. Guvenlik ve Bagimlilik
-- [ ] Frontend dependency guncellemeleri (ozellikle Next.js guvenlik yamasi)
-- [ ] Update sonrasi regression kontrolu (build + test + e2e smoke)
+- [x] Frontend dependency guncellemeleri (ozellikle Next.js guvenlik yamasi)
+- [x] Update sonrasi regression kontrolu (build + test + e2e smoke)
 
 **Faz 1 Cikis Kriteri:**
 - Tum kritik rollerde minimum 1 uctan uca senaryo yesil
@@ -101,7 +101,5 @@ Bu plan mevcut repo durumu (CI aktif, temel moduller calisiyor) uzerinden
 
 ## Bu Hafta Ne Yapacagiz? (Net Plan)
 
-1. Next.js guvenlik guncellemesini yap.
-2. Update sonrasi tam regression calistir (backend/frontend + e2e-smoke).
-3. Branch protection ile PR kapisini zorunlu hale getir.
-4. Faz 1 cikis kriterlerini kapatip release-aday hazirla.
+1. Branch protection ile PR kapisini zorunlu hale getir.
+2. Faz 1 cikis kriterlerini kapatip release-aday hazirla.
