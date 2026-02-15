@@ -222,3 +222,26 @@ make clean
 ```
 
 Not: Bu komut kodu veya veritabani verisini silmez.
+
+## 13. Branch Protection (GitHub)
+
+Plan geregi `main` branch icin PR + CI zorunlu olmasi onerilir.
+
+Script dry-run (sadece payload gosterir):
+
+```bash
+bash scripts/setup-branch-protection.sh
+```
+
+Gercek uygulama (GitHub token gerekir):
+
+```bash
+GITHUB_TOKEN=senin_tokenin make branch-protect
+```
+
+Not:
+- Token, repo uzerinde branch protection degistirebilecek yetkiye sahip olmali.
+- Script su kontrolleri zorunlu yapiya ayarlar:
+  - `Backend Build and Test`
+  - `Frontend Build and Test`
+  - `E2E Smoke (Chromium)`

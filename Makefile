@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: help first-setup bootstrap start stop restart status infra-up infra-down infra-logs db-reset seed backend-test frontend-test e2e-smoke test clean
+.PHONY: help first-setup bootstrap start stop restart status infra-up infra-down infra-logs db-reset seed backend-test frontend-test e2e-smoke branch-protect test clean
 
 help:
 	@echo "Available targets:"
@@ -16,6 +16,7 @@ help:
 	@echo "  make seed         - Seed test users and sample data"
 	@echo "  make test         - Run backend + frontend tests"
 	@echo "  make e2e-smoke    - Run CI-like Playwright smoke flow (resets DB)"
+	@echo "  make branch-protect - Apply GitHub main branch protection (requires GITHUB_TOKEN)"
 	@echo "  make clean        - Remove local pid/log folders created by scripts"
 
 first-setup:
@@ -61,6 +62,9 @@ frontend-test:
 
 e2e-smoke:
 	@bash scripts/e2e-smoke.sh
+
+branch-protect:
+	@bash scripts/setup-branch-protection.sh --apply
 
 test: backend-test frontend-test
 

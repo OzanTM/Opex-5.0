@@ -30,7 +30,7 @@ Bu plan mevcut repo durumu (CI aktif, temel moduller calisiyor) uzerinden
 ### 2. Kalite Kapisi (CI)
 - [x] Kritik E2E smoke senaryosunu CI'a ekle
 - [x] Lokal CI-benzeri smoke akisi tek komutla calisiyor (`make e2e-smoke`)
-- [ ] PR merge oncesi "backend + frontend + e2e-smoke" zorunlu gecis
+- [ ] PR merge oncesi "backend + frontend + e2e-smoke" zorunlu gecis (branch protection apply bekliyor)
 
 ### 3. Guvenlik ve Bagimlilik
 - [x] Frontend dependency guncellemeleri (ozellikle Next.js guvenlik yamasi)

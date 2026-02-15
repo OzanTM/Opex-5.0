@@ -17,6 +17,7 @@
 - [x] CI'a `e2e_smoke` isi eklendi (backend+frontend ayağa kalkip smoke test kosuyor)
 - [x] Uctan uca onay akisi eklendi (USER -> KOMITE onayi -> MUDUR onayi)
 - [x] Frontend guvenlik guncellemeleri tamamlandi (Next.js 15.5.10, audit: 0 vulnerability)
+- [x] Branch protection otomasyon scripti eklendi (`scripts/setup-branch-protection.sh`)
 
 ---
 
@@ -52,7 +53,7 @@
   - [x] Komite/yonetici red-revizyon varyantlari
 - [x] Full sistem smoke testi tek komut (`make e2e-smoke`) haline getirildi
 - [x] Frontend bagimlilik guvenlik guncellemeleri yapildi (ozellikle Next.js)
-- [ ] Branch protection ile PR kalite kapisi zorunlu hale getirilecek
+- [ ] Branch protection ayari GitHub tarafinda uygulanacak (`make branch-protect`, token gerekli)
 
 ### P1 - Kisa Vade
 - [ ] Swagger/OpenAPI dokumani
