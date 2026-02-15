@@ -103,7 +103,7 @@ export const useAuthStore = create<AuthState>()(
             }),
             onRehydrateStorage: () => (state) => {
                 if (state) {
-                    state.isLoading = false;
+                    state.setLoading(false);
                 }
             },
         }
