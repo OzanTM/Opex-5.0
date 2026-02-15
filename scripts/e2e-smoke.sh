@@ -133,6 +133,8 @@ log "Starting backend..."
   BCRYPT_SALT_ROUNDS="12" \
   MAX_FAILED_LOGINS="5" \
   LOCKOUT_DURATION="900000" \
+  RATE_LIMIT_PER_MINUTE="10000" \
+  RATE_LIMIT_PER_HOUR="100000" \
   COMPANY_NAME="OpEx Company" \
   npm run start >"$LOG_DIR/e2e-backend.log" 2>&1 &
   BACKEND_PID=$!

@@ -1,7 +1,7 @@
 # OpEx 5.0 - Guncel Durum ve Eksikler
 
 **Son Guncelleme:** 15 Subat 2026  
-**Genel Durum:** %98 (Canliya gecis oncesi stabilizasyon asamasi)
+**Genel Durum:** %99 (Canliya gecis oncesi stabilizasyon asamasi)
 
 ---
 
@@ -15,6 +15,7 @@
 - [x] Auth hydration kaynakli "Yukleniyor..." kilitlenmesi duzeltildi
 - [x] Playwright E2E smoke senaryolari eklendi (auth/rbac + suggestion lifecycle)
 - [x] CI'a `e2e_smoke` isi eklendi (backend+frontend ayağa kalkip smoke test kosuyor)
+- [x] Uctan uca onay akisi eklendi (USER -> KOMITE onayi -> MUDUR onayi)
 
 ---
 
@@ -31,7 +32,7 @@
 - [x] Durum etiketleri Turkce ve tutarli
 - [x] Build ve jest testleri geciyor
 - [x] Kritik smoke E2E senaryolari geciyor
-- [ ] Komite degerlendirme + mudur onayinin tam E2E kapsami eksik
+- [x] Komite/yonetici approve-reject-revision varyantlarinin E2E kapsami eklendi
 
 ### DevOps / Altyapi
 - [x] Docker Compose ile postgres/redis/minio calisiyor
@@ -43,12 +44,14 @@
 ## Kalan Isler (Oncelik Sirasi)
 
 ### P0 - Sonraki Asama (Hemen)
-- [ ] Kritik E2E senaryolari tamamlanacak:
-  - [x] Login + temel rol bazli erisim kontrolu (USER admin sayfasina giremez)
+- [x] Kritik E2E senaryolari tamamlandi:
+  - [x] Login + zorunlu sifre degisimi assertion'i + temel rol bazli erisim kontrolu
   - [x] Oneri olusturma ve listeye dusme
-  - [ ] Oneri olusturma -> komite degerlendirme -> mudur onayi tam zinciri
+  - [x] Oneri olusturma -> komite degerlendirme -> mudur onayi tam zinciri
+  - [x] Komite/yonetici red-revizyon varyantlari
 - [x] Full sistem smoke testi tek komut (`make e2e-smoke`) haline getirildi
 - [ ] Frontend bagimlilik guvenlik guncellemeleri yapilacak (ozellikle Next.js)
+- [ ] Branch protection ile PR kalite kapisi zorunlu hale getirilecek
 
 ### P1 - Kisa Vade
 - [ ] Swagger/OpenAPI dokumani
@@ -66,8 +69,8 @@
 
 **Hedef:** "Tum kritik akislar testle guvence altinda" seviyesine gecmek.
 
-1. Komite + approver aksiyonlarini kapsayan E2E senaryolarini ekle.
-2. Security update sprinti yap (Next.js ve ilgili paketler).
+1. Security update sprinti yap (Next.js ve ilgili paketler).
+2. Branch protection ile PR kalite kapisini zorunlu hale getir.
 3. Sprint sonunda "release aday" etiketi cikart.
 
 **Bitis Kriteri:**

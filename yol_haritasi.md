@@ -16,15 +16,15 @@ Bu plan mevcut repo durumu (CI aktif, temel moduller calisiyor) uzerinden
 ---
 
 ## Faz 1 - Stabilizasyon (Su anki sonraki asama)
-**Durum:** In Progress (%60 tamamlandi)  
+**Durum:** In Progress (%90 tamamlandi)  
 **Sure:** 1-2 hafta  
 **Hedef:** Kritik is akislarini testle guvence altina almak
 
 ### 1. E2E Kapsami (Playwright)
-- [ ] Login + password change akisi (zorunlu degisim adimi assertion ile netlestirilecek)
+- [x] Login + password change akisi (zorunlu degisim adimi assertion ile netlesti)
 - [x] User oneriyi olusturup komiteye gonderebiliyor
-- [ ] Committee manager review (approve/reject/revision)
-- [ ] Approver onay/red akisi
+- [x] Committee manager review (approve/reject/revision)
+- [x] Approver onay/red akisi (red sonrasi komiteye donus dahil)
 - [x] Rol bazli route koruma dogrulamasi (USER -> /admin erisimi engelli)
 
 ### 2. Kalite Kapisi (CI)
@@ -101,7 +101,7 @@ Bu plan mevcut repo durumu (CI aktif, temel moduller calisiyor) uzerinden
 
 ## Bu Hafta Ne Yapacagiz? (Net Plan)
 
-1. Committee manager + approver aksiyonlarini E2E'ye ekle.
-2. Password change zorunlu adimini E2E assertion'i ile kesinlestir.
-3. Next.js guvenlik guncellemesini yap.
-4. Branch protection ile PR kapisini zorunlu hale getir.
+1. Next.js guvenlik guncellemesini yap.
+2. Update sonrasi tam regression calistir (backend/frontend + e2e-smoke).
+3. Branch protection ile PR kapisini zorunlu hale getir.
+4. Faz 1 cikis kriterlerini kapatip release-aday hazirla.
