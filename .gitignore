@@ -10,9 +10,16 @@ yarn-error.log*
 # Build outputs
 dist/
 .next/
+.next_bak_*/
 coverage/
 playwright-report/
 test-results/
+backend/tsconfig.tsbuildinfo
+frontend/playwright/.auth/
+
+# Local tooling
+.kilocode/
+.kilocodemodes
 
 # Env files
 .env
