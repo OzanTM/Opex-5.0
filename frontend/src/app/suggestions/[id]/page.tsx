@@ -9,7 +9,7 @@ import ManagerReviewModal from '@/components/ManagerReviewModal';
 import {
     Suggestion,
     SuggestionStatus,
-    SUGGESTION_STATUS_LABELS,
+    getStatusLabelTr,
     SUGGESTION_CATEGORY_LABELS,
     GAIN_CATEGORY_LABELS,
     GainCategory,
@@ -289,7 +289,7 @@ export default function SuggestionDetailPage() {
                             color: statusColor.text,
                             border: `1px solid ${statusColor.border}`,
                         }}>
-                            {statusIcon} {SUGGESTION_STATUS_LABELS[suggestion.status as SuggestionStatus] || suggestion.status}
+                            {statusIcon} {getStatusLabelTr(suggestion.status)}
                         </span>
                         <span style={{ fontSize: '0.85rem', opacity: 0.8 }}>
                             📅 {new Date(suggestion.createdAt).toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' })}
@@ -526,7 +526,7 @@ export default function SuggestionDetailPage() {
                                     const isCurrent = suggestion.status === step || (currentFlowIndex === -1 && idx === 0);
                                     const isPending = !isCompleted && !isCurrent;
                                     const color = isCompleted ? '#16a34a' : isCurrent ? '#2563eb' : '#d1d5db';
-                                    const statusLabel = SUGGESTION_STATUS_LABELS[step as SuggestionStatus] || step;
+                                    const statusLabel = getStatusLabelTr(step);
                                     return (
                                         <div key={step} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
                                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '24px' }}>

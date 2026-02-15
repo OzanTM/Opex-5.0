@@ -4,7 +4,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { suggestionsApi } from '@/lib/api';
-import { Suggestion, SuggestionStatus, SUGGESTION_STATUS_LABELS } from '@/types';
+import { Suggestion, getStatusLabelTr } from '@/types';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { StatsCard } from '@/components/common/StatsCard';
@@ -492,7 +492,7 @@ export default function DashboardPage() {
                                                         color: sc.color, backgroundColor: sc.bg,
                                                         whiteSpace: 'nowrap', flexShrink: 0,
                                                     }}>
-                                                        {sc.icon} {SUGGESTION_STATUS_LABELS[s.status as SuggestionStatus] || s.status}
+                                                        {sc.icon} {getStatusLabelTr(s.status)}
                                                     </span>
                                                 </div>
                                             );
@@ -576,7 +576,7 @@ export default function DashboardPage() {
                                                 <div key={status}>
                                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.3rem' }}>
                                                         <span style={{ fontSize: '0.8rem', color: '#4b5563', fontWeight: '500' }}>
-                                                            {sc.icon} {SUGGESTION_STATUS_LABELS[status as SuggestionStatus] || status}
+                                                            {sc.icon} {getStatusLabelTr(status)}
                                                         </span>
                                                         <span style={{ fontSize: '0.75rem', fontWeight: '700', color: sc.color }}>{count}</span>
                                                     </div>

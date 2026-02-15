@@ -325,3 +325,28 @@ export const GAIN_CATEGORY_LABELS: Record<GainCategory, string> = {
     CUSTOMER_SATISFACTION: 'Müşteri Memnuniyeti',
     OTHER: 'Diğer',
 };
+
+export const APPROVAL_STEP_STATUS_LABELS: Record<ApprovalStepStatus, string> = {
+    PENDING: 'Beklemede',
+    APPROVED: 'Onaylandı',
+    REJECTED: 'Reddedildi',
+    SKIPPED: 'Atlandı',
+};
+
+export const STATUS_LABELS_TR: Record<string, string> = {
+    ...SUGGESTION_STATUS_LABELS,
+    ...APPROVAL_STEP_STATUS_LABELS,
+    SUBMITTED: 'Gönderildi',
+    UNDER_REVIEW: 'İnceleniyor',
+    REVISION_REQUESTED: 'Revizyon İstendi',
+    PENDING_PASSWORD_CHANGE: 'Şifre Değişikliği Bekleniyor',
+    ACTIVE: 'Aktif',
+    INACTIVE: 'Pasif',
+    SUSPENDED: 'Askıda',
+    PLANNED: 'Planlandı',
+    ON_HOLD: 'Beklemede',
+};
+
+export const getStatusLabelTr = (status: string): string => {
+    return STATUS_LABELS_TR[status] || status;
+};

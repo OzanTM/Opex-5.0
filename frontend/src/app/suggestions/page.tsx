@@ -6,9 +6,8 @@ import { useEffect, useState } from 'react';
 import { suggestionsApi } from '@/lib/api';
 import {
     Suggestion,
-    SUGGESTION_STATUS_LABELS,
+    getStatusLabelTr,
     SUGGESTION_CATEGORY_LABELS,
-    SuggestionStatus,
 } from '@/types';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { StatusBadge } from '@/components/common/StatusBadge';
@@ -187,7 +186,7 @@ export default function SuggestionsPage() {
                                             transition: 'all 0.2s',
                                         }}
                                     >
-                                        {SUGGESTION_STATUS_LABELS[status as SuggestionStatus] || status}
+                                        {getStatusLabelTr(status)}
                                     </button>
                                 );
                             })}

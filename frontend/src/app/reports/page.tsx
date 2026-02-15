@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
+import { getStatusLabelTr } from '@/types';
 
 interface DashboardStats {
     suggestions: {
@@ -72,30 +73,23 @@ export default function ReportsPage() {
         return `${val.toLocaleString('tr-TR')} TL`;
     };
 
-    const getStatusLabel = (status: string) => {
-        const labels: Record<string, string> = {
-            DRAFT: 'Taslak',
-            SUBMITTED: 'Gönderildi',
-            UNDER_REVIEW: 'Inceleniyor',
-            REVISION_REQUESTED: 'Revizyon Istendi',
-            APPROVED: 'Onaylandi',
-            REJECTED: 'Reddedildi',
-            IN_PROGRESS: 'Devam Ediyor',
-            COMPLETED: 'Tamamlandi',
-        };
-        return labels[status] || status;
-    };
-
     const getStatusColor = (status: string) => {
         const colors: Record<string, string> = {
             DRAFT: '#6b7280',
             SUBMITTED: '#3b82f6',
             UNDER_REVIEW: '#8b5cf6',
             REVISION_REQUESTED: '#f59e0b',
+            PENDING: '#d97706',
+            PENDING_COMMITTEE_REVIEW: '#d97706',
+            PENDING_APPROVAL: '#2563eb',
+            COMMITTEE_REVISION_REQUESTED: '#ea580c',
             APPROVED: '#10b981',
+            APPROVER_REJECTED: '#ef4444',
+            COMMITTEE_REJECTED: '#ef4444',
             REJECTED: '#ef4444',
             IN_PROGRESS: '#0ea5e9',
             COMPLETED: '#059669',
+            CANCELLED: '#6b7280',
         };
         return colors[status] || '#6b7280';
     };
@@ -211,7 +205,7 @@ export default function ReportsPage() {
                             {stats?.suggestions.byStatus.map((item) => (
                                 <div key={item.status} className="chart-bar-item">
                                     <div className="chart-bar-label">
-                                        <span>{getStatusLabel(item.status)}</span>
+                                        <span>{getStatusLabelTr(item.status)}</span>
                                         <span className="chart-bar-value">{item.count}</span>
                                     </div>
                                     <div className="chart-bar-track">
