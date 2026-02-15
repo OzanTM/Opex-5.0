@@ -1,0 +1,106 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PID_DIR="$ROOT_DIR/.pids"
+
+WITH_INFRA=false
+FORCE=false
+
+log() {
+  printf "[dev-stop] %s\n" "$*"
+}
+
+warn() {
+  printf "[dev-stop][warn] %s\n" "$*" >&2
+}
+
+usage() {
+  cat <<'EOF'
+Usage: bash scripts/dev-stop.sh [options]
+
+Options:
+  --with-infra  Also stop docker infrastructure (docker compose down)
+  --force       Force kill app processes with SIGKILL
+  -h, --help    Show this help
+EOF
+}
+
+stop_from_pid_file() {
+  local name="$1"
+  local pid_file="$2"
+
+  if [[ ! -f "$pid_file" ]]; then
+    warn "$name PID file not found: $pid_file"
+    return
+  fi
+
+  local pid
+  pid="$(cat "$pid_file")"
+
+  if [[ -z "$pid" ]]; then
+    warn "$name PID file empty: $pid_file"
+    rm -f "$pid_file"
+    return
+  fi
+
+  if ! kill -0 "$pid" >/dev/null 2>&1; then
+    warn "$name is not running (stale PID: $pid)"
+    rm -f "$pid_file"
+    return
+  fi
+
+  if [[ "$FORCE" == "true" ]]; then
+    log "Force stopping $name (PID $pid)..."
+    kill -9 "$pid" >/dev/null 2>&1 || true
+  else
+    log "Stopping $name (PID $pid)..."
+    kill "$pid" >/dev/null 2>&1 || true
+    sleep 1
+    if kill -0 "$pid" >/dev/null 2>&1; then
+      warn "$name did not stop in time, using SIGKILL (PID $pid)"
+      kill -9 "$pid" >/dev/null 2>&1 || true
+    fi
+  fi
+
+  rm -f "$pid_file"
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --with-infra)
+      WITH_INFRA=true
+      shift
+      ;;
+    --force)
+      FORCE=true
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      printf "[dev-stop][error] Unknown argument: %s\n" "$1" >&2
+      exit 1
+      ;;
+  esac
+done
+
+stop_from_pid_file "backend" "$PID_DIR/backend.pid"
+stop_from_pid_file "frontend" "$PID_DIR/frontend.pid"
+
+if [[ "$WITH_INFRA" == "true" ]]; then
+  log "Stopping docker infrastructure..."
+  (cd "$ROOT_DIR" && docker compose down)
+fi
+
+if lsof -ti :3001 >/dev/null 2>&1; then
+  warn "Port 3001 is still in use by another process"
+fi
+
+if lsof -ti :3000 >/dev/null 2>&1; then
+  warn "Port 3000 is still in use by another process"
+fi
+
+log "Done."

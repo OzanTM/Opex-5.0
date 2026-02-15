@@ -34,6 +34,8 @@ logs/
 # Temp
 tmp/
 *.tmp
+.pids/
+.logs/
 
 # IDE
 .vscode/
