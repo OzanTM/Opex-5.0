@@ -1,65 +1,107 @@
-# OpEx 5.0 - Sıralı Proje Yol Haritası
+# OpEx 5.0 - Guncel Yol Haritasi (2026)
 
-Bu belge, `oneri_sistemi_tam_proje_promptu.md` (Gereksinimler) ve `eksik.md` (Mevcut Durum - 15 Şubat 2026) dosyalarının karşılaştırmalı analizi sonucunda oluşturulmuştur. Projenin %95 tamamlanma durumundan %100 canlıya alınma durumuna geçişi için gerekli adımları içerir.
+Bu plan mevcut repo durumu (CI aktif, temel moduller calisiyor) uzerinden
+"stabil urun" ve "canliya gecis" hedefini sirali sekilde tanimlar.
 
-## Faz 1: Kalite Güvence ve Test (Quality Assurance & Testing)
-**Durum:** Öncelikli (Hemen Başlanmalı)
-**Hedef:** Mevcut %95'lik kısmın hatasız çalıştığının doğrulanması.
+---
 
-1.  **Backend Testleri**
-    -   [ ] **API Endpoint Testleri:** Tüm endpoint'ler (Auth, Suggestions, Committee, vb.) için unit ve integration testlerinin yazılması. `eksik.md`'de belirtildiği üzere testler eksik.
-    -   [ ] **Yetkilendirme (Auth) Testleri:** Rol bazlı erişim kontrollerinin (RBAC) doğrulanması. (Örn: İşçi, yönetici ekranına erişememeli).
-    -   [ ] **Onay Akış Testleri:** Hiyerarşik onay mekanizmasının (İşçi -> Şef -> Müdür -> GMY) farklı senaryolarla test edilmesi.
+## Faz 0 - Baseline (Tamamlandi)
 
-2.  **Frontend Testleri**
-    -   [ ] **Form Validasyon Testleri:** Öneri formundaki zorunlu alanlar, karakter limitleri ve dosya yükleme kısıtlamalarının kontrolü.
-    - [ ] **E2E (Uçtan Uca) Testler:** Playwright altyapısı kuruldu ve Auth mekanizması API tabanlı hale getirildi. Senaryo testlerinin (Öneri oluşturma vb.) stabilizasyonu ve selector sorunlarının giderilmesi gerekiyor.
-    - [ ] **Mobil Uyumluluk Testleri:** Farklı ekran boyutlarında (Mobil, Tablet, Desktop) responsive tasarımın kontrolü.
+- [x] Backend + frontend build/test geciyor
+- [x] GitHub Actions CI kurulu ve yesil
+- [x] Docker Compose gelistirme ortami calisiyor
+- [x] Startup otomasyonu (`make start/stop/status`) hazir
+- [x] Temel ekranlar ve API entegrasyonu aktif
 
-## Faz 2: Eksik Özelliklerin Tamamlanması ve Doğrulanması (Feature Gap Filling)
-**Durum:** Testlerle Paralel Yürütülebilir
-**Hedef:** Prompt dosyasında istenen ancak `eksik.md` listesinde net olmayan özelliklerin kesinleştirilmesi.
+---
 
-1.  **Email Kuyruk Sistemi (Queue System)**
-    -   [ ] **RabbitMQ/Redis Queue Entegrasyonu:** `oneri_sistemi_tam_proje_promptu.md` içerisinde belirtilen yüksek hacimli (5000 kişi) mail gönderimleri için kuyruk yapısının kurulması. (Mevcut durumda `eksik.md` sadece SMTP/SendGrid entegrasyonundan bahsetmiş, ancak ölçeklenebilirlik için Queue şart).
-    -   [ ] **Rate Limiting:** Email gönderim limitlerinin (dakikada 100 mail vb.) backend tarafında tanımlanması ve test edilmesi.
+## Faz 1 - Stabilizasyon (Su anki sonraki asama)
+**Durum:** In Progress (%60 tamamlandi)  
+**Sure:** 1-2 hafta  
+**Hedef:** Kritik is akislarini testle guvence altina almak
 
-2.  **Dosya Depolama (File Storage)**
-    -   [ ] **S3/MinIO Entegrasyonu:** Dosya yükleme sisteminin AWS S3 veya MinIO ile entegrasyonunun doğrulanması. (Prompt'ta 100GB depolama hedefi verilmiş, lokal depolama bu yükü kaldıramayabilir).
+### 1. E2E Kapsami (Playwright)
+- [ ] Login + password change akisi (zorunlu degisim adimi assertion ile netlestirilecek)
+- [x] User oneriyi olusturup komiteye gonderebiliyor
+- [ ] Committee manager review (approve/reject/revision)
+- [ ] Approver onay/red akisi
+- [x] Rol bazli route koruma dogrulamasi (USER -> /admin erisimi engelli)
 
-3.  **Performans İyileştirmeleri (Veritabanı)**
-    -   [ ] **Materialized Views:** Raporlama ekranlarının hızlandırılması için `oneri_sistemi_tam_proje_promptu.md` içinde önerilen "materialized view" yapılarının veritabanında oluşturulması (Günlük/Aylık özet tablolar). `eksik.md`'de rapor API'si tamamlandı dense de, performans optimizasyonu eksik listesinde.
+### 2. Kalite Kapisi (CI)
+- [x] Kritik E2E smoke senaryosunu CI'a ekle
+- [x] Lokal CI-benzeri smoke akisi tek komutla calisiyor (`make e2e-smoke`)
+- [ ] PR merge oncesi "backend + frontend + e2e-smoke" zorunlu gecis
 
-## Faz 3: Performans ve Optimizasyon (Optimization)
-**Durum:** Fonksiyonel Testlerden Sonra
-**Hedef:** 5000 kullanıcı yüküne hazırlık.
+### 3. Guvenlik ve Bagimlilik
+- [ ] Frontend dependency guncellemeleri (ozellikle Next.js guvenlik yamasi)
+- [ ] Update sonrasi regression kontrolu (build + test + e2e smoke)
 
-1.  **Caching (Önbellekleme)**
-    -   [ ] **Redis Caching:** Sık erişilen verilerin (Öneri listeleri, kullanıcı profilleri, statik ayarlar) Redis üzerinde önbelleklenmesi. `eksik.md`'de bu madde açıkça "Performance Optimization" altında listelenmiş.
-2.  **Lazy Loading & Code Splitting:** Frontend tarafında sayfa yükleme hızlarının optimize edilmesi (< 2 saniye hedefi).
-3.  **Yük Testi (Load Testing):** JMeter veya k6 ile 500-1000 eşzamanlı kullanıcı simülasyonu ve sistemin tepki sürelerinin ölçülmesi.
+**Faz 1 Cikis Kriteri:**
+- Tum kritik rollerde minimum 1 uctan uca senaryo yesil
+- CI fail oraninda belirgin dusus
+- "Yukleniyor'da kalma" benzeri kritik UI bug tekrar etmiyor
 
-## Faz 4: Altyapı ve Canlıya Geçiş (Infrastructure & Deployment)
-**Durum:** Optimizasyon Sonrası
+---
 
-1.  **Konteynerizasyon**
-    -   [ ] **Docker:** Backend, Frontend ve Worker servislerinin Dockerize edilmesi.
-    -   [ ] **Docker Compose:** Local geliştirme ve test ortamı için orchestration dosyasının hazırlanması.
-2.  **CI/CD Pipeline**
-    -   [ ] **GitHub Actions/GitLab CI:** Otomatik test, build ve deployment süreçlerinin kurulması.
-3.  **Prodüksiyon Ortamı Hazırlığı**
-    -   [ ] **PostgreSQL (Prod):** Canlı veritabanı kurulumu, replikasyon ve yedekleme stratejilerinin ayarlanması.
-    -   [ ] **Domain & SSL:** Uygulamanın güvenli (HTTPS) yayını.
+## Faz 2 - Dokumantasyon ve Release Hazirligi
+**Durum:** Faz 1 sonrasi  
+**Sure:** 1 hafta
 
-## Faz 5: Dokümantasyon ve Eğitim (Documentation)
-**Durum:** Canlıya Geçiş Öncesi
+### 1. Teknik Dokumantasyon
+- [ ] Swagger/OpenAPI endpoint dokumani
+- [ ] Hata kodlari ve ornek response dokumani
 
-1.  **Teknik Dokümantasyon**
-    -   [ ] **Swagger/OpenAPI:** API endpoint'lerinin dokümante edilmesi. (`eksik.md`'de eksik olarak belirtilmiş).
-    -   [ ] **Kurulum Kılavuzu:** Sistem yöneticileri için kurulum ve bakım kılavuzu.
-2.  **Kullanıcı Kılavuzları**
-    -   [ ] **Kullanıcı El Kitabı:** Öneri verme adımları.
-    -   [ ] **Yönetici/Komite Rehberi:** Onay ve değerlendirme süreçleri.
+### 2. Operasyon Dokumani
+- [ ] Deployment runbook (staging/prod)
+- [ ] Rollback adimlari
+- [ ] Backup/restore adimlari
 
-## Faz 6: Gelecek Vizyonu (Future Phase)
-1.  **Mobil Uygulama (React Native):** Mevcut API'leri kullanarak mobil uygulamanın geliştirilmesi.
+### 3. Kullanici Dokumani
+- [ ] Rol bazli kullanim kilavuzu
+- [ ] Sik sorunlar ve cozumler
+
+**Faz 2 Cikis Kriteri:**
+- Yeni bir ekip uyesi dokumanla sistemi ayaga kaldirabiliyor
+- API kullanimi icin ekibe net referans dokuman var
+
+---
+
+## Faz 3 - Production Hardening
+**Durum:** Faz 2 sonrasi  
+**Sure:** 1-2 hafta
+
+### 1. Ortam ve Guvenlik
+- [ ] Production env secret yonetimi
+- [ ] Domain + SSL
+- [ ] CORS ve rate-limit production ayari
+
+### 2. Veritabani ve Isletim
+- [ ] DB backup politikasi ve zamanlamasi
+- [ ] Log/monitoring/alarm temel metrikleri
+- [ ] Incident response mini runbook
+
+### 3. Performans
+- [ ] Kritik endpointlerde response time olcumu
+- [ ] Gerekli noktalarda cache tuning
+
+**Faz 3 Cikis Kriteri:**
+- Uygulama staging/prod ortaminda izlenebilir ve geri alinabilir halde
+
+---
+
+## Faz 4 - Canliya Gecis
+**Durum:** Faz 3 sonrasi
+
+- [ ] Release checklist tamamlandi
+- [ ] Tag/Release notu olusturuldu
+- [ ] Canli gecis yapildi
+- [ ] Ilk 48 saat yakindan izleme tamamlandi
+
+---
+
+## Bu Hafta Ne Yapacagiz? (Net Plan)
+
+1. Committee manager + approver aksiyonlarini E2E'ye ekle.
+2. Password change zorunlu adimini E2E assertion'i ile kesinlestir.
+3. Next.js guvenlik guncellemesini yap.
+4. Branch protection ile PR kapisini zorunlu hale getir.

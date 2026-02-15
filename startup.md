@@ -119,6 +119,12 @@ Sadece frontend:
 make frontend-test
 ```
 
+CI benzeri E2E smoke (DB reset + seed yapar):
+
+```bash
+make e2e-smoke
+```
+
 ## 8. Docker Servis Yonetimi
 
 Sadece altyapiyi ac:

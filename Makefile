@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: help first-setup bootstrap start stop restart status infra-up infra-down infra-logs db-reset seed backend-test frontend-test test clean
+.PHONY: help first-setup bootstrap start stop restart status infra-up infra-down infra-logs db-reset seed backend-test frontend-test e2e-smoke test clean
 
 help:
 	@echo "Available targets:"
@@ -15,6 +15,7 @@ help:
 	@echo "  make db-reset     - Reset database schema (destructive)"
 	@echo "  make seed         - Seed test users and sample data"
 	@echo "  make test         - Run backend + frontend tests"
+	@echo "  make e2e-smoke    - Run CI-like Playwright smoke flow (resets DB)"
 	@echo "  make clean        - Remove local pid/log folders created by scripts"
 
 first-setup:
@@ -57,6 +58,9 @@ backend-test:
 
 frontend-test:
 	@cd frontend && npm test -- --runInBand
+
+e2e-smoke:
+	@bash scripts/e2e-smoke.sh
 
 test: backend-test frontend-test
 

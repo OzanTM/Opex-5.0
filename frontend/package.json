@@ -9,7 +9,9 @@
         "lint": "next lint",
         "type-check": "tsc --noEmit",
         "test": "jest",
-        "test:watch": "jest --watch"
+        "test:watch": "jest --watch",
+        "test:e2e": "playwright test",
+        "test:e2e:smoke": "playwright test tests/auth-rbac.spec.ts tests/suggestions.spec.ts --project=chromium --reporter=line --workers=1"
     },
     "dependencies": {
         "@hookform/resolvers": "^3.3.4",
