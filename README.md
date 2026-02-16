@@ -209,6 +209,9 @@ Ek dokumanlar:
 - `docs/rollback-runbook.md`
 - `docs/backup-restore.md`
 - `docs/rol-bazli-kullanim-kilavuzu.md`
+- `docs/production-env-secrets.md`
+- `docs/monitoring-alert-plan.md`
+- `docs/incident-response-runbook.md`
 
 ## 📈 Performans Hedefleri
 

@@ -1,8 +1,8 @@
 # OpEx 5.0 - Guncel Durum ve Eksikler
 
 **Son Guncelleme:** 16 Subat 2026  
-**Teslimat Durumu:** Faz 2 (Dokumantasyon ve release hazirligi) aktif  
-**Kapsam Tamamlanma (Feature/Operasyon):** %96 civari  
+**Teslimat Durumu:** Faz 3 (Production hardening) aktif  
+**Kapsam Tamamlanma (Feature/Operasyon):** %97 civari  
 **Uptime Hedefi (Production KPI):** %99.5 (canli ortam olcumu henuz baslamadi)
 
 ---
@@ -30,6 +30,10 @@
 - [x] API hata kodlari dokumani eklendi (`docs/api-hata-kodlari.md`)
 - [x] Deployment/rollback/backup runbook dokumanlari eklendi (`docs/`)
 - [x] Rol bazli kullanim kilavuzu eklendi (`docs/rol-bazli-kullanim-kilavuzu.md`)
+- [x] Production env template'leri eklendi (`backend/.env.production.example`, `frontend/.env.production.example`)
+- [x] DB backup/restore scriptleri eklendi (`scripts/db-backup.sh`, `scripts/db-restore.sh`)
+- [x] Ops health-check komutu eklendi (`make ops-health-check`)
+- [x] Monitoring ve incident runbook dokumanlari eklendi (`docs/monitoring-alert-plan.md`, `docs/incident-response-runbook.md`)
 
 ---
 
@@ -79,9 +83,12 @@
 - [x] RC tag ve release notunun GitHub Release olarak yayinlanmasi (`v1.0.0-rc.1`)
 
 ### P2 - Canliya Gecis Hazirligi
-- [ ] Production env tasarimi (domain, SSL, env secret yonetimi)
-- [ ] DB backup/restore operasyonunun ortamda otomatiklestirilmesi (runbook: `docs/backup-restore.md`)
-- [ ] Monitoring ve alarm temel metrikleri
+- [x] Production env/secret tasarimi ve template'leri hazirlandi
+- [x] DB backup/restore runbook + lokal script otomasyonu hazirlandi
+- [x] Monitoring/alarm metrik plani dokumante edildi
+- [ ] Secret manager entegrasyonu ve production'a uygulanmasi
+- [ ] Domain + SSL ve production network ayarlari
+- [ ] Monitoring/alarm sisteminin production ortama baglanmasi
 
 ---
 

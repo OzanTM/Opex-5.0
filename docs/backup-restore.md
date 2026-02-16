@@ -18,6 +18,13 @@ mkdir -p backups
 docker compose exec -T postgres pg_dump -U opex_user -d opex_db > backups/opex_db_$(date +%Y%m%d_%H%M%S).sql
 ```
 
+Ayni islem icin script:
+
+```bash
+cd /Users/Ozan/Documents/opex-5.0
+make backup-db
+```
+
 ## 3. Backup Dogrulama
 
 - Dosya olustu mu kontrol et:
@@ -39,6 +46,13 @@ Ornek:
 ```bash
 cd /Users/Ozan/Documents/opex-5.0
 cat backups/opex_db_YYYYMMDD_HHMMSS.sql | docker compose exec -T postgres psql -U opex_user -d opex_db
+```
+
+Script ile restore:
+
+```bash
+cd /Users/Ozan/Documents/opex-5.0
+make restore-db BACKUP_FILE=backups/opex_db_YYYYMMDD_HHMMSS.sql
 ```
 
 ## 5. Restore Sonrasi Kontroller

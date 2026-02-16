@@ -79,18 +79,21 @@ Bu plan mevcut repo durumu (CI aktif, temel moduller calisiyor) uzerinden
 ---
 
 ## Faz 3 - Production Hardening
-**Durum:** Faz 2 sonrasi  
+**Durum:** In Progress  
 **Sure:** 1-2 hafta
 
 ### 1. Ortam ve Guvenlik
-- [ ] Production env secret yonetimi
+- [x] Production env + secret yonetimi dokumani ve env template'leri
+- [ ] Secret manager entegrasyonu ve production ortama uygulama
 - [ ] Domain + SSL
 - [ ] CORS ve rate-limit production ayari
 
 ### 2. Veritabani ve Isletim
-- [ ] DB backup politikasi ve zamanlamasi (RPO/RTO hedefleri ile)
-- [ ] Log/monitoring/alarm temel metrikleri (SLO/SLA alarmlari ile)
-- [ ] Incident response mini runbook
+- [x] DB backup/restore runbook + script komutlari (`make backup-db`, `make restore-db`)
+- [x] Monitoring/alarm plan dokumani ve health-check komutu (`make ops-health-check`)
+- [x] Incident response mini runbook
+- [ ] DB backup politikasi ve zamanlamasinin production ortama otomasyonu (RPO/RTO)
+- [ ] Monitoring/alarm kurallarinin production ortama entegrasyonu
 
 ### 3. Performans
 - [ ] Kritik endpointlerde response time olcumu (p95/p99 hedefleri)

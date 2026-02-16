@@ -36,6 +36,10 @@ Not: RC surecinde final surum yerine `v1.0.0-rc.x` kullan.
 
 Asagidaki degiskenler ortamda tanimli olmali:
 
+- Template referanslari:
+  - `backend/.env.production.example`
+  - `frontend/.env.production.example`
+
 - Backend:
   - `NODE_ENV=production`
   - `PORT`

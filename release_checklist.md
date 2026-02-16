@@ -35,6 +35,7 @@ Bu dosya release adayi ve canliya gecis oncesi kontrol listesidir.
 - [ ] Secret yonetimi metodu netlesti
 - [ ] Backup/restore proseduru denendi
 - [ ] Monitoring/alert metrikleri tanimlandi
+- [ ] `make ops-health-check` staging ortaminda basariyla calisti
 
 ## 5) Release Artefaktlari
 
