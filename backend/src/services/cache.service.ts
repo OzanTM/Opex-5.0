@@ -70,6 +70,24 @@ class CacheService {
     }
 
     /**
+     * Set value in cache and register the key under an index set.
+     * Useful to invalidate a dynamic key group without expensive SCAN.
+     */
+    async setWithIndex(key: string, value: any, ttl: number, indexKey: string): Promise<void> {
+        try {
+            if (!this.isConnected) return;
+            const data = JSON.stringify(value);
+            const pipeline = this.client.pipeline();
+            pipeline.setex(key, ttl, data);
+            pipeline.sadd(indexKey, key);
+            pipeline.expire(indexKey, ttl);
+            await pipeline.exec();
+        } catch (error) {
+            logger.error(`Cache SET WITH INDEX error for key: ${key}`, { error });
+        }
+    }
+
+    /**
      * Delete value from cache
      */
     async del(key: string): Promise<void> {
@@ -82,31 +100,48 @@ class CacheService {
     }
 
     /**
+     * Delete a key group tracked in a Redis Set index.
+     */
+    async delByIndex(indexKey: string): Promise<void> {
+        try {
+            if (!this.isConnected) return;
+            const keys = await this.client.smembers(indexKey);
+            if (keys.length === 0) {
+                await this.client.del(indexKey);
+                return;
+            }
+
+            const pipeline = this.client.pipeline();
+            for (const key of keys) {
+                pipeline.del(key);
+            }
+            pipeline.del(indexKey);
+            await pipeline.exec();
+        } catch (error) {
+            logger.error(`Cache DEL BY INDEX error for index: ${indexKey}`, { error });
+        }
+    }
+
+    /**
      * Delete keys by pattern
      * Use with caution!
      */
     async delByPattern(pattern: string): Promise<void> {
         try {
             if (!this.isConnected) return;
-            const stream = this.client.scanStream({
-                match: pattern,
-                count: 100
-            });
-
-            stream.on('data', async (keys: string[]) => {
-                if (keys.length) {
+            let cursor = '0';
+            do {
+                const [nextCursor, keys] = await this.client.scan(cursor, 'MATCH', pattern, 'COUNT', 200);
+                cursor = nextCursor;
+                if (keys.length > 0) {
                     const pipeline = this.client.pipeline();
-                    keys.forEach((key) => {
+                    for (const key of keys) {
                         pipeline.del(key);
-                    });
+                    }
                     await pipeline.exec();
                 }
-            });
-
-            stream.on('end', () => {
-                logger.debug(`Cache cleared for pattern: ${pattern}`);
-            });
-
+            } while (cursor !== '0');
+            logger.debug(`Cache cleared for pattern: ${pattern}`);
         } catch (error) {
             logger.error(`Cache DEL PATTERN error: ${pattern}`, { error });
         }

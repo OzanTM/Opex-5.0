@@ -68,6 +68,8 @@ interface IApprovalChainStep {
 }
 
 export class SuggestionService {
+    private static readonly SUGGESTIONS_LIST_INDEX_KEY = 'suggestions:list:index';
+
     /**
      * Generate unique reference number
      */
@@ -75,6 +77,36 @@ export class SuggestionService {
         const year = new Date().getFullYear();
         const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
         return `ONR-${year}-${random}`;
+    }
+
+    private buildSuggestionsListCacheKey(filter: ISuggestionFilter): string {
+        const normalizedFilter: Record<string, string | number | null> = {};
+        const entries = Object.entries(filter)
+            .filter(([, value]) => value !== undefined)
+            .sort(([a], [b]) => a.localeCompare(b));
+
+        for (const [key, value] of entries) {
+            if (value instanceof Date) {
+                normalizedFilter[key] = value.toISOString();
+                continue;
+            }
+            if (typeof value === 'string') {
+                const trimmed = value.trim();
+                if (trimmed.length === 0) continue;
+                normalizedFilter[key] = trimmed;
+                continue;
+            }
+            normalizedFilter[key] = value as number | null;
+        }
+
+        return `suggestions:list:${JSON.stringify(normalizedFilter)}`;
+    }
+
+    private async invalidateSuggestionCaches(suggestionId?: number): Promise<void> {
+        await cacheService.delByIndex(SuggestionService.SUGGESTIONS_LIST_INDEX_KEY);
+        if (suggestionId !== undefined) {
+            await cacheService.del(`suggestions:${suggestionId}`);
+        }
     }
 
     /**
@@ -142,7 +174,7 @@ export class SuggestionService {
         });
 
         // Invalidate cache
-        await cacheService.delByPattern('suggestions:list:*');
+        await this.invalidateSuggestionCaches();
 
         return this.formatSuggestion(suggestion);
     }
@@ -208,8 +240,7 @@ export class SuggestionService {
         }
 
         // Invalidate cache
-        await cacheService.delByPattern('suggestions:list:*');
-        await cacheService.del(`suggestions:${suggestionId}`);
+        await this.invalidateSuggestionCaches(suggestionId);
 
         return this.formatSuggestion(updated);
     }
@@ -322,8 +353,7 @@ export class SuggestionService {
         }
 
         // Invalidate cache
-        await cacheService.delByPattern('suggestions:list:*');
-        await cacheService.del(`suggestions:${suggestionId}`);
+        await this.invalidateSuggestionCaches(suggestionId);
 
         return this.formatSuggestion(updated);
     }
@@ -640,8 +670,7 @@ export class SuggestionService {
             });
         }
 
-        await cacheService.delByPattern('suggestions:list:*');
-        await cacheService.del(`suggestions:${suggestionId}`);
+        await this.invalidateSuggestionCaches(suggestionId);
 
         const updatedSuggestion = await this.getSuggestionById(suggestionId);
         if (!updatedSuggestion) {
@@ -694,8 +723,7 @@ export class SuggestionService {
             throw error;
         }
 
-        await cacheService.delByPattern('suggestions:list:*');
-        await cacheService.del(`suggestions:${suggestionId}`);
+        await this.invalidateSuggestionCaches(suggestionId);
 
         const updatedSuggestion = await this.getSuggestionById(suggestionId);
         if (!updatedSuggestion) {
@@ -748,8 +776,7 @@ export class SuggestionService {
             throw error;
         }
 
-        await cacheService.delByPattern('suggestions:list:*');
-        await cacheService.del(`suggestions:${suggestionId}`);
+        await this.invalidateSuggestionCaches(suggestionId);
 
         const updatedSuggestion = await this.getSuggestionById(suggestionId);
         if (!updatedSuggestion) {
@@ -763,7 +790,7 @@ export class SuggestionService {
      * Get suggestions with filtering and pagination
      */
     async getSuggestions(filter: ISuggestionFilter): Promise<{ data: ISuggestionWithDetails[]; total: number }> {
-        const cacheKey = `suggestions:list:${JSON.stringify(filter)}`;
+        const cacheKey = this.buildSuggestionsListCacheKey(filter);
         const cached = await cacheService.get<{ data: ISuggestionWithDetails[]; total: number }>(cacheKey);
 
         if (cached) {
@@ -821,7 +848,7 @@ export class SuggestionService {
         };
 
         // Cache result for 5 minutes
-        await cacheService.set(cacheKey, result, 300);
+        await cacheService.setWithIndex(cacheKey, result, 300, SuggestionService.SUGGESTIONS_LIST_INDEX_KEY);
 
         return result;
     }
@@ -921,8 +948,7 @@ export class SuggestionService {
         }
 
         // Invalidate cache
-        await cacheService.delByPattern('suggestions:list:*');
-        await cacheService.del(`suggestions:${id}`);
+        await this.invalidateSuggestionCaches(id);
 
         return this.formatSuggestion(updated);
     }
@@ -959,8 +985,7 @@ export class SuggestionService {
         });
 
         // Invalidate cache
-        await cacheService.delByPattern('suggestions:list:*');
-        await cacheService.del(`suggestions:${id}`);
+        await this.invalidateSuggestionCaches(id);
     }
 
     /**
