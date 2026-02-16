@@ -8,11 +8,11 @@ import CommitteeReviewModal from '@/components/CommitteeReviewModal';
 import ManagerReviewModal from '@/components/ManagerReviewModal';
 import {
     Suggestion,
-    SuggestionStatus,
     getStatusLabelTr,
     SUGGESTION_CATEGORY_LABELS,
     GAIN_CATEGORY_LABELS,
     GainCategory,
+    APPROVAL_STEP_TYPE_LABELS,
 } from '@/types';
 
 const STATUS_COLORS: Record<string, { bg: string; text: string; border: string }> = {
@@ -39,6 +39,13 @@ const STATUS_ICONS: Record<string, string> = {
     IN_PROGRESS: '🚀',
     COMPLETED: '🎉',
     CANCELLED: '🚫',
+};
+
+const APPROVAL_STEP_STATUS_COLORS: Record<string, { bg: string; text: string; border: string }> = {
+    PENDING: { bg: '#fffbeb', text: '#92400e', border: '#fcd34d' },
+    APPROVED: { bg: '#f0fdf4', text: '#166534', border: '#86efac' },
+    REJECTED: { bg: '#fef2f2', text: '#991b1b', border: '#fca5a5' },
+    SKIPPED: { bg: '#f3f4f6', text: '#4b5563', border: '#d1d5db' },
 };
 
 // Status flow for timeline
@@ -209,9 +216,25 @@ export default function SuggestionDetailPage() {
     const gainCategories: string[] = Array.isArray(suggestion.gainCategories)
         ? suggestion.gainCategories
         : [];
+    const approvalSteps = (suggestion.approvalWorkflow?.steps || [])
+        .slice()
+        .sort((a, b) => a.stepNumber - b.stepNumber);
+    const hasApprovalChain = approvalSteps.length > 0;
+    const approvalCurrentStep = suggestion.approvalWorkflow?.currentStep || 1;
 
     // Determine current step in flow
     const currentFlowIndex = STATUS_FLOW.indexOf(suggestion.status);
+
+    const formatDateTime = (value?: string) => {
+        if (!value) return '';
+        return new Date(value).toLocaleDateString('tr-TR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        });
+    };
 
     const cardStyle: React.CSSProperties = {
         backgroundColor: 'white',
@@ -520,51 +543,129 @@ export default function SuggestionDetailPage() {
                             <h3 style={{ fontSize: '0.9rem', fontWeight: '600', color: '#111827', marginBottom: '1rem', paddingBottom: '0.5rem', borderBottom: '2px solid #e5e7eb' }}>
                                 🔄 Süreç Durumu
                             </h3>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
-                                {STATUS_FLOW.map((step, idx) => {
-                                    const isCompleted = currentFlowIndex > idx;
-                                    const isCurrent = suggestion.status === step || (currentFlowIndex === -1 && idx === 0);
-                                    const isPending = !isCompleted && !isCurrent;
-                                    const color = isCompleted ? '#16a34a' : isCurrent ? '#2563eb' : '#d1d5db';
-                                    const statusLabel = getStatusLabelTr(step);
-                                    return (
-                                        <div key={step} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-                                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '24px' }}>
-                                                <div style={{
-                                                    width: '20px',
-                                                    height: '20px',
-                                                    borderRadius: '50%',
-                                                    backgroundColor: isCompleted ? '#16a34a' : isCurrent ? '#2563eb' : '#f3f4f6',
-                                                    border: `2px solid ${color}`,
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    fontSize: '0.6rem',
-                                                    color: 'white',
-                                                    flexShrink: 0,
-                                                }}>
-                                                    {isCompleted ? '✓' : isCurrent ? '●' : ''}
+                            {hasApprovalChain ? (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                                    <div style={{
+                                        fontSize: '0.78rem',
+                                        color: '#374151',
+                                        backgroundColor: '#f8fafc',
+                                        border: '1px solid #e2e8f0',
+                                        borderRadius: '0.5rem',
+                                        padding: '0.55rem 0.65rem',
+                                    }}>
+                                        {suggestion.approvalWorkflow?.completedAt
+                                            ? `Onay süreci tamamlandı (${approvalSteps.length}/${approvalSteps.length})`
+                                            : `Aktif adım: ${approvalCurrentStep}/${suggestion.approvalWorkflow?.totalSteps || approvalSteps.length}`}
+                                    </div>
+
+                                    {approvalSteps.map((step, idx) => {
+                                        const isCurrent = step.status === 'PENDING' && step.stepNumber === approvalCurrentStep;
+                                        const statusColor = APPROVAL_STEP_STATUS_COLORS[step.status] || APPROVAL_STEP_STATUS_COLORS.PENDING;
+                                        const stepTypeLabel = APPROVAL_STEP_TYPE_LABELS[step.stepType] || step.stepType;
+                                        const actionDate = step.approvedAt || step.rejectedAt;
+                                        const dateLabel = actionDate ? formatDateTime(actionDate) : '';
+                                        const noteText = step.notes || step.rejectionReason;
+
+                                        return (
+                                            <div
+                                                key={step.id}
+                                                style={{
+                                                    border: isCurrent ? '1px solid #2563eb' : '1px solid #e5e7eb',
+                                                    borderRadius: '0.65rem',
+                                                    padding: '0.7rem',
+                                                    backgroundColor: isCurrent ? '#eff6ff' : 'white',
+                                                }}
+                                            >
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
+                                                    <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#111827' }}>
+                                                        {step.stepNumber}. {stepTypeLabel}
+                                                    </div>
+                                                    <span style={{
+                                                        fontSize: '0.72rem',
+                                                        fontWeight: 600,
+                                                        backgroundColor: statusColor.bg,
+                                                        color: statusColor.text,
+                                                        border: `1px solid ${statusColor.border}`,
+                                                        borderRadius: '9999px',
+                                                        padding: '0.15rem 0.5rem',
+                                                        whiteSpace: 'nowrap',
+                                                    }}>
+                                                        {getStatusLabelTr(step.status)}
+                                                    </span>
                                                 </div>
-                                                {idx < STATUS_FLOW.length - 1 && (
-                                                    <div style={{
-                                                        width: '2px',
-                                                        height: '24px',
-                                                        backgroundColor: isCompleted ? '#16a34a' : '#e5e7eb',
-                                                    }}></div>
+
+                                                <div style={{ fontSize: '0.78rem', color: '#374151' }}>
+                                                    {step.approver.firstName} {step.approver.lastName}
+                                                </div>
+                                                <div style={{ fontSize: '0.72rem', color: '#6b7280' }}>
+                                                    {step.approver.position || 'Pozisyon belirtilmedi'}
+                                                </div>
+
+                                                {dateLabel && (
+                                                    <div style={{ fontSize: '0.72rem', color: '#4b5563', marginTop: '0.3rem' }}>
+                                                        Tarih: {dateLabel}
+                                                    </div>
+                                                )}
+                                                {noteText && (
+                                                    <div style={{ fontSize: '0.72rem', color: '#4b5563', marginTop: '0.3rem', backgroundColor: '#f9fafb', borderRadius: '0.4rem', padding: '0.35rem 0.45rem' }}>
+                                                        Not: {noteText}
+                                                    </div>
+                                                )}
+
+                                                {idx < approvalSteps.length - 1 && (
+                                                    <div style={{ marginTop: '0.55rem', borderTop: '1px dashed #e5e7eb' }}></div>
                                                 )}
                                             </div>
-                                            <span style={{
-                                                fontSize: '0.8rem',
-                                                color: isPending ? '#9ca3af' : '#111827',
-                                                fontWeight: isCurrent ? '600' : '400',
-                                                paddingTop: '1px',
-                                            }}>
-                                                {statusLabel}
-                                            </span>
-                                        </div>
-                                    );
-                                })}
-                            </div>
+                                        );
+                                    })}
+                                </div>
+                            ) : (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+                                    {STATUS_FLOW.map((step, idx) => {
+                                        const isCompleted = currentFlowIndex > idx;
+                                        const isCurrent = suggestion.status === step || (currentFlowIndex === -1 && idx === 0);
+                                        const isPending = !isCompleted && !isCurrent;
+                                        const color = isCompleted ? '#16a34a' : isCurrent ? '#2563eb' : '#d1d5db';
+                                        const statusLabel = getStatusLabelTr(step);
+                                        return (
+                                            <div key={step} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+                                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '24px' }}>
+                                                    <div style={{
+                                                        width: '20px',
+                                                        height: '20px',
+                                                        borderRadius: '50%',
+                                                        backgroundColor: isCompleted ? '#16a34a' : isCurrent ? '#2563eb' : '#f3f4f6',
+                                                        border: `2px solid ${color}`,
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        fontSize: '0.6rem',
+                                                        color: 'white',
+                                                        flexShrink: 0,
+                                                    }}>
+                                                        {isCompleted ? '✓' : isCurrent ? '●' : ''}
+                                                    </div>
+                                                    {idx < STATUS_FLOW.length - 1 && (
+                                                        <div style={{
+                                                            width: '2px',
+                                                            height: '24px',
+                                                            backgroundColor: isCompleted ? '#16a34a' : '#e5e7eb',
+                                                        }}></div>
+                                                    )}
+                                                </div>
+                                                <span style={{
+                                                    fontSize: '0.8rem',
+                                                    color: isPending ? '#9ca3af' : '#111827',
+                                                    fontWeight: isCurrent ? '600' : '400',
+                                                    paddingTop: '1px',
+                                                }}>
+                                                    {statusLabel}
+                                                </span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
                         </div>
 
                         {/* Tahmini Maliyet / Kazanç */}

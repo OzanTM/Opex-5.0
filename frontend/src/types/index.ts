@@ -149,8 +149,10 @@ export interface Document {
 // Approval Types
 export type ApprovalStepType =
     | 'CHEF_APPROVAL'
+    | 'CHIEF_APPROVAL'
     | 'MANAGER_APPROVAL'
     | 'FACTORY_MANAGER'
+    | 'FACTORY_MANAGER_APPROVAL'
     | 'GMY_APPROVAL';
 
 export type ApprovalStepStatus =
@@ -331,6 +333,15 @@ export const APPROVAL_STEP_STATUS_LABELS: Record<ApprovalStepStatus, string> = {
     APPROVED: 'Onaylandı',
     REJECTED: 'Reddedildi',
     SKIPPED: 'Atlandı',
+};
+
+export const APPROVAL_STEP_TYPE_LABELS: Record<ApprovalStepType, string> = {
+    CHEF_APPROVAL: 'Şef Onayı',
+    CHIEF_APPROVAL: 'Şef Onayı',
+    MANAGER_APPROVAL: 'Müdür Onayı',
+    FACTORY_MANAGER: 'Fabrika Müdürü Onayı',
+    FACTORY_MANAGER_APPROVAL: 'Fabrika Müdürü Onayı',
+    GMY_APPROVAL: 'GMY Onayı',
 };
 
 export const STATUS_LABELS_TR: Record<string, string> = {
