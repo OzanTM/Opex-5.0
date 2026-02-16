@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: help first-setup bootstrap start stop restart status infra-up infra-down infra-logs db-reset seed backup-db restore-db backup-cron-install backup-cron-remove backup-cron-show secrets-aws-backend secrets-aws-frontend validate-prod-env render-nginx-config domain-ssl-preflight ops-health-check perf-smoke backend-test frontend-test e2e-smoke branch-protect release-check test clean
+.PHONY: help first-setup bootstrap start stop restart status infra-up infra-down infra-logs db-reset seed backup-db restore-db backup-cron-install backup-cron-remove backup-cron-show secrets-aws-backend secrets-aws-frontend validate-prod-env render-nginx-config domain-ssl-preflight monitoring-up monitoring-down monitoring-status monitoring-logs ops-health-check perf-smoke backend-test frontend-test e2e-smoke branch-protect release-check test clean
 
 help:
 	@echo "Available targets:"
@@ -24,6 +24,10 @@ help:
 	@echo "  make validate-prod-env   - Validate backend/frontend production env files"
 	@echo "  make render-nginx-config - Render production nginx config for domain+ssl"
 	@echo "  make domain-ssl-preflight - Validate DNS/HTTPS readiness for app+api domains"
+	@echo "  make monitoring-up  - Start Prometheus/Grafana/Alertmanager monitoring stack"
+	@echo "  make monitoring-down - Stop monitoring stack"
+	@echo "  make monitoring-status - Show monitoring stack status"
+	@echo "  make monitoring-logs - Tail monitoring stack logs"
 	@echo "  make ops-health-check - Run basic backend/frontend/docs availability checks"
 	@echo "  make perf-smoke   - Run backend performance smoke test (p95/p99 check)"
 	@echo "  make test         - Run backend + frontend tests"
@@ -116,6 +120,18 @@ domain-ssl-preflight:
 		exit 1; \
 	fi
 	@bash scripts/domain-ssl-preflight.sh --app-domain "$(APP_DOMAIN)" --api-domain "$(API_DOMAIN)" $(if $(filter true,$(SKIP_HTTPS)),--skip-https-check,)
+
+monitoring-up:
+	@docker compose -f ops/monitoring/docker-compose.monitoring.yml up -d
+
+monitoring-down:
+	@docker compose -f ops/monitoring/docker-compose.monitoring.yml down
+
+monitoring-status:
+	@docker compose -f ops/monitoring/docker-compose.monitoring.yml ps
+
+monitoring-logs:
+	@docker compose -f ops/monitoring/docker-compose.monitoring.yml logs -f --tail=100
 
 ops-health-check:
 	@bash scripts/ops-health-check.sh

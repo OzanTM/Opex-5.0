@@ -66,6 +66,9 @@ make validate-prod-env
 Domain + SSL adimlari icin:
 - `docs/domain-ssl-runbook.md`
 
+Monitoring/alarm adimlari icin:
+- `docs/monitoring-alert-plan.md`
+
 ## 5. Deployment Sirasinda Uygulanacak Adimlar
 
 1. Yeni release tag'ine ait image/artefact olustur.
@@ -75,8 +78,9 @@ Domain + SSL adimlari icin:
    - Backend health: `/api/v1/health`
    - Swagger: `/api-docs`
    - Frontend login akisi
-5. Staging dogrulandiysa production rollout yap.
-6. Production sonrasi 15-30 dk hizli kontrol (smoke + log izleme).
+5. Monitoring stack'te probe ve alarm kurallarini dogrula.
+6. Staging dogrulandiysa production rollout yap.
+7. Production sonrasi 15-30 dk hizli kontrol (smoke + log izleme).
 
 ## 6. Smoke Kontrol Listesi (Canli Sonrasi)
 

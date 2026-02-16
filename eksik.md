@@ -40,6 +40,7 @@
 - [x] Backup cron otomasyon komutlari eklendi (`make backup-cron-install/show/remove`)
 - [x] Secret manager entegrasyon script tabani eklendi (`make secrets-aws-backend`, `make secrets-aws-frontend`, `make validate-prod-env`)
 - [x] Domain + SSL hazirlik artefaktlari eklendi (`make render-nginx-config`, `make domain-ssl-preflight`, `docs/domain-ssl-runbook.md`)
+- [x] Monitoring stack + alarm kural seti eklendi (`make monitoring-up/down/status/logs`)
 
 ---
 
