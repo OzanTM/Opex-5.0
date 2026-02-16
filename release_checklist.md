@@ -5,6 +5,7 @@ Bu dosya release adayi ve canliya gecis oncesi kontrol listesidir.
 ## 1) Kalite Kapisi (Code + Test)
 
 - [ ] `make release-check` basariyla tamamlandi
+- [ ] `make local-rc-check` basariyla tamamlandi
 - [ ] Backend testleri yesil
 - [ ] Frontend testleri yesil
 - [ ] Playwright E2E smoke (approval matrix dahil) yesil
@@ -33,6 +34,10 @@ Bu dosya release adayi ve canliya gecis oncesi kontrol listesidir.
 
 - [ ] Production env degiskenleri netlesti
 - [ ] Secret yonetimi metodu netlesti
+- [ ] `make prod-sync-secrets ...` ile sunucuda secret sync dogrulandi
+- [ ] `make render-systemd-units ...` ile unit dosyalari uretilip systemd kurulumu tamamlandi
+- [ ] `make domain-ssl-preflight ...` basariyla gecti
+- [ ] `make monitoring-up` sonrasi Prometheus/Grafana/Alertmanager erisimi dogrulandi
 - [ ] Backup/restore proseduru denendi
 - [ ] Monitoring/alert metrikleri tanimlandi
 - [ ] `make ops-health-check` staging ortaminda basariyla calisti
@@ -53,6 +58,9 @@ GITHUB_TOKEN=<token> make branch-protect
 
 # 2) Tum release kontrolleri
 make release-check
+
+# 2b) Lokal RC kalite kapisi (onerilen)
+make local-rc-check
 
 # 3) Release aday etiketi
 git tag v1.0.0-rc.1

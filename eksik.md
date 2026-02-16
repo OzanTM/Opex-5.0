@@ -2,7 +2,7 @@
 
 **Son Guncelleme:** 16 Subat 2026  
 **Teslimat Durumu:** Faz 3 (Production hardening) aktif  
-**Kapsam Tamamlanma (Feature/Operasyon):** %97 civari  
+**Kapsam Tamamlanma (Feature/Operasyon):** %98 civari  
 **Uptime Hedefi (Production KPI):** %99.5 (canli ortam olcumu henuz baslamadi)
 
 ---
@@ -34,6 +34,16 @@
 - [x] DB backup/restore scriptleri eklendi (`scripts/db-backup.sh`, `scripts/db-restore.sh`)
 - [x] Ops health-check komutu eklendi (`make ops-health-check`)
 - [x] Monitoring ve incident runbook dokumanlari eklendi (`docs/monitoring-alert-plan.md`, `docs/incident-response-runbook.md`)
+- [x] Local p95/p99 latency kontrolu icin perf smoke otomasyonu eklendi (`make perf-smoke`)
+- [x] Suggestion liste cache invalidasyonu index tabanli tuning ile optimize edildi
+- [x] CORS ve rate-limit ayarlari production odakli ve env kontrollu hale getirildi
+- [x] Backup cron otomasyon komutlari eklendi (`make backup-cron-install/show/remove`)
+- [x] Secret manager entegrasyon script tabani eklendi (`make secrets-aws-backend`, `make secrets-aws-frontend`, `make validate-prod-env`)
+- [x] Secret manager'in deploy akisi scriptlendi (`make prod-sync-secrets`, `make prod-deploy`)
+- [x] Systemd unit template/render otomasyonu eklendi (`make render-systemd-units`)
+- [x] Domain + SSL hazirlik artefaktlari eklendi (`make render-nginx-config`, `make domain-ssl-preflight`, `docs/domain-ssl-runbook.md`)
+- [x] Monitoring stack + alarm kural seti eklendi (`make monitoring-up/down/status/logs`)
+- [x] Monitoring hedef URL render ve endpoint check komutlari eklendi (`make render-monitoring-config`, `make monitoring-check`)
 
 ---
 
@@ -86,6 +96,7 @@
 - [x] Production env/secret tasarimi ve template'leri hazirlandi
 - [x] DB backup/restore runbook + lokal script otomasyonu hazirlandi
 - [x] Monitoring/alarm metrik plani dokumante edildi
+- [x] Kritik endpointlerde p95/p99 olcumu icin local test komutu eklendi
 - [ ] Secret manager entegrasyonu ve production'a uygulanmasi
 - [ ] Domain + SSL ve production network ayarlari
 - [ ] Monitoring/alarm sisteminin production ortama baglanmasi

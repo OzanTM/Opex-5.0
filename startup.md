@@ -100,6 +100,24 @@ Backup al:
 make backup-db
 ```
 
+Gunluk otomatik backup (cron) kur:
+
+```bash
+make backup-cron-install HOUR=2 MINUTE=0 RETENTION_DAYS=14
+```
+
+Cron kaydini goster:
+
+```bash
+make backup-cron-show
+```
+
+Cron kaydini kaldir:
+
+```bash
+make backup-cron-remove
+```
+
 Belirli bir backup dosyasini restore et:
 
 ```bash
@@ -139,6 +157,15 @@ CI benzeri E2E smoke (DB reset + seed yapar):
 make e2e-smoke
 ```
 
+Lokal "canliya hazir aday" kalite kapisi (tek komut):
+
+```bash
+make local-rc-check
+```
+
+Bu komut sirasiyla `release-check`, `perf-smoke`, `start` ve `ops-health-check`
+calistirir.
+
 ## 8. Docker Servis Yonetimi
 
 Sadece altyapiyi ac:
@@ -167,7 +194,24 @@ Backend + docs + frontend ayakta mi:
 make ops-health-check
 ```
 
-## 10. Log Dosyalari
+## 10. Performans Smoke (p95/p99)
+
+Backend ayaktayken temel performans kontrolu:
+
+```bash
+make perf-smoke
+```
+
+Not: Backend kapaliysa komut gecici backend baslatip test sonunda kapatir.
+
+Opsiyonel threshold/yük ayari:
+
+```bash
+cd /Users/Ozan/Documents/opex-5.0/backend
+PERF_CONNECTIONS=10 PERF_REQUEST_AMOUNT=120 PERF_P95_LIMIT_MS=500 PERF_P99_LIMIT_MS=1000 npm run perf:smoke
+```
+
+## 11. Log Dosyalari
 
 Script ile baslatildiginda loglar burada tutulur:
 
@@ -180,7 +224,7 @@ Canli takip:
 tail -f .logs/backend.log .logs/frontend.log
 ```
 
-## 11. Sik Problemler ve Cozumler
+## 12. Sik Problemler ve Cozumler
 
 ### Problem: `Port 3000 already in use` veya `Port 3001 already in use`
 
@@ -219,7 +263,7 @@ Kontrol:
 2. `backend/.env` icinde `DATABASE_URL` ve `REDIS_*` degerleri dogru mu?
 3. Docker servisleri ayakta mi? (`docker compose ps`)
 
-## 12. Kod Cektikten Sonra (git pull sonrasi) Onerilen Rutin
+## 13. Kod Cektikten Sonra (git pull sonrasi) Onerilen Rutin
 
 ```bash
 git pull
@@ -235,7 +279,7 @@ make start
 
 `make start` zaten migration deploy calistirir.
 
-## 13. Temizlik
+## 14. Temizlik
 
 Sadece script PID/log klasorlerini temizler:
 
@@ -245,7 +289,7 @@ make clean
 
 Not: Bu komut kodu veya veritabani verisini silmez.
 
-## 14. Branch Protection (GitHub)
+## 15. Branch Protection (GitHub)
 
 Plan geregi `main` branch icin PR + CI zorunlu olmasi onerilir.
 
@@ -268,7 +312,7 @@ Not:
   - `Frontend Build and Test`
   - `E2E Smoke (Chromium)`
 
-## 15. Production Dokumanlari
+## 16. Production Dokumanlari
 
 - `docs/production-env-secrets.md`
 - `docs/deployment-runbook.md`

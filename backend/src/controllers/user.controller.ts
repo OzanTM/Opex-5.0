@@ -133,6 +133,24 @@ export const getRecentSuggestions = async (req: Request, res: Response, next: Ne
 };
 
 /**
+ * Get assignable users for committee project assignment
+ * GET /api/v1/users/assignable-users
+ */
+export const getAssignableUsers = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const requester = (req as any).user;
+        const users = await userService.getAssignableUsers({
+            companyId: requester.companyId,
+        });
+
+        return sendSuccess(res, users, 'Atanabilir kullanicilar');
+    } catch (error) {
+        logger.error('Get assignable users error:', error);
+        return sendError(res, 'Atanabilir kullanicilar getirilirken hata olustu', 500);
+    }
+};
+
+/**
  * Get pending approvals
  * GET /api/v1/users/me/pending-approvals
  */

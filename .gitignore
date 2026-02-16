@@ -42,3 +42,13 @@ backups/
 # IDE
 .vscode/
 .idea/
+
+# Generated reverse proxy config
+ops/nginx/*.conf
+!ops/nginx/*.template
+
+# Generated systemd units
+ops/systemd/generated/
+
+# Generated monitoring config
+ops/monitoring/prometheus.generated.yml

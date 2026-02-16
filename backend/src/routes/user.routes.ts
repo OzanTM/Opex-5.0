@@ -5,7 +5,7 @@
 
 import { Router } from 'express';
 import * as userController from '../controllers/user.controller';
-import { authenticate } from '../middleware/auth';
+import { authenticate, authorize } from '../middleware/auth';
 
 const router = Router();
 
@@ -36,6 +36,9 @@ router.get('/me/suggestions', userController.getRecentSuggestions);
 
 // Get pending approvals
 router.get('/me/pending-approvals', userController.getPendingApprovals);
+
+// Get assignable users (committee/admin)
+router.get('/assignable-users', authorize('COMMITTEE_MANAGER', 'ADMIN'), userController.getAssignableUsers);
 
 // ============================================
 // NOTIFICATIONS

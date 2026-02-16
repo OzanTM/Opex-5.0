@@ -84,20 +84,27 @@ Bu plan mevcut repo durumu (CI aktif, temel moduller calisiyor) uzerinden
 
 ### 1. Ortam ve Guvenlik
 - [x] Production env + secret yonetimi dokumani ve env template'leri
-- [ ] Secret manager entegrasyonu ve production ortama uygulama
-- [ ] Domain + SSL
-- [ ] CORS ve rate-limit production ayari
+- [x] Secret manager entegrasyon script tabani (AWS Secrets Manager -> env + env validation)
+- [x] Secret manager'in production pipeline/sunucu ortamina uygulanmasi icin deploy scriptleri (`make prod-sync-secrets`, `make prod-deploy`)
+- [x] Systemd unit template ve render scripti eklendi (`make render-systemd-units`)
+- [ ] Secret manager deploy akisinin gercek production ortamda calistirilip dogrulanmasi
+- [x] Domain + SSL icin nginx template + render/preflight scriptleri + runbook
+- [ ] Domain + SSL'in production sunucuya uygulanmasi
+- [x] CORS ve rate-limit production ayari
 
 ### 2. Veritabani ve Isletim
 - [x] DB backup/restore runbook + script komutlari (`make backup-db`, `make restore-db`)
+- [x] Backup cron otomasyon scriptleri eklendi (`make backup-cron-install/show/remove`)
 - [x] Monitoring/alarm plan dokumani ve health-check komutu (`make ops-health-check`)
+- [x] Monitoring stack ve alarm kurallari eklendi (`make monitoring-up/down/status/logs`)
+- [x] Monitoring probe target render mekanizmasi eklendi (`make render-monitoring-config`, `make monitoring-check`)
 - [x] Incident response mini runbook
 - [ ] DB backup politikasi ve zamanlamasinin production ortama otomasyonu (RPO/RTO)
 - [ ] Monitoring/alarm kurallarinin production ortama entegrasyonu
 
 ### 3. Performans
-- [ ] Kritik endpointlerde response time olcumu (p95/p99 hedefleri)
-- [ ] Gerekli noktalarda cache tuning
+- [x] Kritik endpointlerde response time olcumu icin local perf-smoke otomasyonu (`make perf-smoke`)
+- [x] Gerekli noktalarda cache tuning
 
 **Faz 3 Cikis Kriteri:**
 - Uygulama staging/prod ortaminda izlenebilir ve geri alinabilir halde

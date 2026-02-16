@@ -3,11 +3,8 @@
 import { useAuthStore } from '@/store/authStore';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { suggestionsApi } from '@/lib/api';
-import { Suggestion, getStatusLabelTr } from '@/types';
-import { Sidebar } from '@/components/layout/Sidebar';
-import { StatusBadge } from '@/components/common/StatusBadge';
-import { StatsCard } from '@/components/common/StatsCard';
+import { suggestionsApi, approvalsApi } from '@/lib/api';
+import { Suggestion, getStatusLabelTr, APPROVAL_STEP_TYPE_LABELS } from '@/types';
 
 const statusConfig: Record<string, { color: string; bg: string; icon: string }> = {
     DRAFT: { color: '#6b7280', bg: '#f3f4f6', icon: '📝' },
@@ -28,10 +25,27 @@ const navItems = [
     { label: 'Yeni Öneri', icon: '✨', path: '/suggestions/new' },
 ];
 
+interface PendingApprovalItem {
+    id: number;
+    stepNumber: number;
+    stepType: string;
+    createdAt: string;
+    suggestion: {
+        id: number;
+        referenceNumber: string;
+        title: string;
+        owner?: {
+            firstName: string;
+            lastName: string;
+        };
+    };
+}
+
 export default function DashboardPage() {
     const router = useRouter();
     const { user, isAuthenticated, isLoading, logout } = useAuthStore();
     const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+    const [pendingApprovals, setPendingApprovals] = useState<PendingApprovalItem[]>([]);
     const [dataLoading, setDataLoading] = useState(true);
 
     useEffect(() => {
@@ -51,14 +65,23 @@ export default function DashboardPage() {
     const fetchSuggestions = async () => {
         try {
             setDataLoading(true);
-            const response: any = (isCommitteeManager || user?.role === 'APPROVER')
-                ? await suggestionsApi.getAll()
-                : await suggestionsApi.getMy();
-            const data = response?.data || response || [];
-            const items = Array.isArray(data) ? data : data.data || [];
-            setSuggestions(items);
+            const [suggestionResponse, pendingApprovalResponse] = await Promise.all([
+                (isCommitteeManager || user?.role === 'APPROVER')
+                    ? suggestionsApi.getAll()
+                    : suggestionsApi.getMy(),
+                approvalsApi.getPending(),
+            ]);
+
+            const suggestionData: any = (suggestionResponse as any)?.data || suggestionResponse || [];
+            const suggestionItems = Array.isArray(suggestionData) ? suggestionData : suggestionData.data || [];
+            setSuggestions(suggestionItems);
+
+            const pendingData: any = (pendingApprovalResponse as any)?.data || pendingApprovalResponse || [];
+            const pendingItems = Array.isArray(pendingData) ? pendingData : pendingData.data || [];
+            setPendingApprovals(pendingItems);
         } catch (error) {
             console.error('Failed to fetch suggestions:', error);
+            setPendingApprovals([]);
         } finally {
             setDataLoading(false);
         }
@@ -104,6 +127,12 @@ export default function DashboardPage() {
 
     const formatDate = (dateStr: string) => {
         return new Date(dateStr).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' });
+    };
+
+    const getStepTypeLabel = (stepType: string) => {
+        const typedKey = stepType as keyof typeof APPROVAL_STEP_TYPE_LABELS;
+        if (APPROVAL_STEP_TYPE_LABELS[typedKey]) return APPROVAL_STEP_TYPE_LABELS[typedKey];
+        return stepType.replace(/_/g, ' ');
     };
 
     const getTimeOfDayGreeting = () => {
@@ -591,6 +620,72 @@ export default function DashboardPage() {
                                                 </div>
                                             );
                                         })}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Approval Chain Summary */}
+                            <div style={{
+                                background: 'white', borderRadius: '14px', padding: '1.25rem 1.5rem',
+                                boxShadow: '0 2px 12px rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.04)',
+                            }}>
+                                <h2 style={{ margin: '0 0 0.35rem', fontSize: '1rem', fontWeight: '700', color: '#111827' }}>🔗 Onay Zinciri Özeti</h2>
+                                <p style={{ margin: '0 0 1rem', fontSize: '0.78rem', color: '#6b7280' }}>
+                                    Size atanmış bekleyen onay adımları
+                                </p>
+
+                                {dataLoading ? (
+                                    <div style={{ textAlign: 'center', padding: '1.25rem', color: '#9ca3af', fontSize: '0.85rem' }}>Yükleniyor...</div>
+                                ) : pendingApprovals.length === 0 ? (
+                                    <div style={{ textAlign: 'center', padding: '1.1rem', color: '#9ca3af', fontSize: '0.82rem', backgroundColor: '#f9fafb', borderRadius: '10px' }}>
+                                        Bekleyen onay adımınız yok.
+                                    </div>
+                                ) : (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.55rem' }}>
+                                        <div style={{ fontSize: '0.76rem', color: '#4b5563', fontWeight: 600 }}>
+                                            Toplam: {pendingApprovals.length}
+                                        </div>
+                                        {pendingApprovals.slice(0, 5).map((item) => (
+                                            <button
+                                                key={item.id}
+                                                onClick={() => router.push(`/suggestions/${item.suggestion.id}`)}
+                                                style={{
+                                                    textAlign: 'left',
+                                                    border: '1px solid #e5e7eb',
+                                                    backgroundColor: '#fff',
+                                                    borderRadius: '10px',
+                                                    padding: '0.65rem',
+                                                    cursor: 'pointer',
+                                                }}
+                                                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f9fafb'; }}
+                                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#fff'; }}
+                                            >
+                                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', marginBottom: '0.3rem' }}>
+                                                    <span style={{ fontSize: '0.74rem', fontWeight: 600, color: '#1d4ed8' }}>
+                                                        {item.stepNumber}. {getStepTypeLabel(item.stepType)}
+                                                    </span>
+                                                    <span style={{ fontSize: '0.72rem', color: '#6b7280', fontFamily: 'monospace' }}>
+                                                        {item.suggestion.referenceNumber}
+                                                    </span>
+                                                </div>
+                                                <div style={{ fontSize: '0.8rem', color: '#111827', fontWeight: 600, marginBottom: '0.2rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                    {item.suggestion.title}
+                                                </div>
+                                                <div style={{ fontSize: '0.72rem', color: '#6b7280', display: 'flex', justifyContent: 'space-between', gap: '0.5rem' }}>
+                                                    <span>
+                                                        {(item.suggestion.owner?.firstName && item.suggestion.owner?.lastName)
+                                                            ? `${item.suggestion.owner.firstName} ${item.suggestion.owner.lastName}`
+                                                            : 'Öneri sahibi'}
+                                                    </span>
+                                                    <span>{formatDate(item.createdAt)}</span>
+                                                </div>
+                                            </button>
+                                        ))}
+                                        {pendingApprovals.length > 5 && (
+                                            <div style={{ fontSize: '0.72rem', color: '#6b7280' }}>
+                                                +{pendingApprovals.length - 5} adım daha mevcut.
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </div>

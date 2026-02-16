@@ -208,6 +208,7 @@ Ek dokumanlar:
 - `docs/deployment-runbook.md`
 - `docs/rollback-runbook.md`
 - `docs/backup-restore.md`
+- `docs/domain-ssl-runbook.md`
 - `docs/rol-bazli-kullanim-kilavuzu.md`
 - `docs/production-env-secrets.md`
 - `docs/monitoring-alert-plan.md`
@@ -230,6 +231,10 @@ npm run test
 # Frontend testleri
 cd frontend
 npm run test
+
+# Performans smoke (p95/p99)
+cd /Users/Ozan/Documents/opex-5.0
+make perf-smoke
 ```
 
 ## 🤖 GitHub Actions CI

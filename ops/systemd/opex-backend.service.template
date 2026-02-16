@@ -1,0 +1,21 @@
+[Unit]
+Description=OpEx 5.0 Backend API
+After=network.target
+
+[Service]
+Type=simple
+User={{RUN_USER}}
+Group={{RUN_GROUP}}
+WorkingDirectory={{APP_DIR}}/backend
+EnvironmentFile={{APP_DIR}}/backend/.env
+Environment=NODE_ENV=production
+Environment=PORT={{BACKEND_PORT}}
+ExecStart=/usr/bin/env bash -lc "cd {{APP_DIR}}/backend && npm run start"
+Restart=always
+RestartSec=5
+LimitNOFILE=65536
+StandardOutput=append:/var/log/opex/backend.log
+StandardError=append:/var/log/opex/backend-error.log
+
+[Install]
+WantedBy=multi-user.target

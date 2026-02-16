@@ -35,7 +35,35 @@ ls -lh backups/
 
 - Rastgele bir backup dosyasini test ortamina restore ederek acilabilirligini dogrula.
 
-## 4. Restore (Dikkat: Veri Uzerine Yazar)
+## 4. Otomatik Backup Zamanlama (Cron)
+
+Gunluk backup + retention politikasini cron ile aktif etmek icin:
+
+```bash
+cd /Users/Ozan/Documents/opex-5.0
+make backup-cron-install HOUR=2 MINUTE=0 RETENTION_DAYS=14
+```
+
+Mevcut cron kaydini gormek icin:
+
+```bash
+cd /Users/Ozan/Documents/opex-5.0
+make backup-cron-show
+```
+
+Cron kaydini kaldirmak icin:
+
+```bash
+cd /Users/Ozan/Documents/opex-5.0
+make backup-cron-remove
+```
+
+Notlar:
+- Cron komutu `scripts/db-backup-rotate.sh` cagirir.
+- Her calismada yeni backup alir ve `RETENTION_DAYS` suresini gecen `opex_db_*.sql` dosyalarini temizler.
+- Cron log dosyasi: `/Users/Ozan/Documents/opex-5.0/.logs/db-backup-cron.log`
+
+## 5. Restore (Dikkat: Veri Uzerine Yazar)
 
 1. Uygulamayi bakima al (yeni yazma islemlerini durdur).
 2. Hedef DB temizle.
@@ -55,7 +83,7 @@ cd /Users/Ozan/Documents/opex-5.0
 make restore-db BACKUP_FILE=backups/opex_db_YYYYMMDD_HHMMSS.sql
 ```
 
-## 5. Restore Sonrasi Kontroller
+## 6. Restore Sonrasi Kontroller
 
 - Backend health:
   - `http://localhost:3001/api/v1/health`
@@ -63,7 +91,7 @@ make restore-db BACKUP_FILE=backups/opex_db_YYYYMMDD_HHMMSS.sql
 - Oneri listeleme ve temel rapor endpoint kontrolu
 - Gerekirse `make seed` ile test verisi yukleme (yalnizca non-prod)
 
-## 6. Guvenlik Notlari
+## 7. Guvenlik Notlari
 
 - Backup dosyalari hassas veri icerebilir.
 - Paylasim oncesi sifreli saklama (at-rest encryption) kullan.
