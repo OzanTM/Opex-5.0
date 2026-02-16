@@ -40,10 +40,11 @@ const approveAsCommittee = async (page: Page, title: string) => {
     await page.getByRole('button', { name: 'Onayla' }).first().click();
     await expect(page.getByRole('heading', { name: 'Öneriyi Onayla' })).toBeVisible();
 
-    await page.locator('select').first().selectOption('KAIZEN');
+    const committeeApproveModal = page.getByRole('heading', { name: 'Öneriyi Onayla' }).locator('..');
+    await committeeApproveModal.locator('select').first().selectOption('KAIZEN');
+    await committeeApproveModal.locator('select').nth(1).selectOption({ index: 1 });
     await page.getByPlaceholder('Varsa eklemek istediğiniz notlar...').fill('Komite onayi approval-matrix testi.');
 
-    const committeeApproveModal = page.getByRole('heading', { name: 'Öneriyi Onayla' }).locator('..');
     await committeeApproveModal.getByRole('button', { name: 'Onayla ve Gönder' }).click();
     await expect(page.getByText('Müdür Onayında')).toBeVisible();
 };
@@ -70,9 +71,9 @@ const approveAsManagerStep = async (
     await managerApproveModal.getByRole('button', { name: 'Onayla' }).click();
 
     if (isFinalStep) {
-        await expect(page.getByText('Onaylandı')).toBeVisible();
+        await expect(page.getByText('Onaylandı').first()).toBeVisible();
     } else {
-        await expect(page.getByText('Müdür Onayında', { exact: true })).toBeVisible();
+        await expect(page.getByText(/Müdür Onayında/)).toBeVisible();
     }
 };
 

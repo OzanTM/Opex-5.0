@@ -253,7 +253,7 @@ export default function CommitteeReviewModal({
                                 outline: 'none',
                                 resize: 'vertical',
                             }}
-                            placeholder={action === 'approve' ? 'Varsa eklemek istediginiz notlar...' : 'Gerekcenizi detayli bir sekilde aciklayiniz...'}
+                            placeholder={action === 'approve' ? 'Varsa eklemek istediğiniz notlar...' : 'Gerekçenizi detaylı bir şekilde açıklayınız...'}
                             required={action !== 'approve'}
                         />
                     </div>
@@ -294,7 +294,7 @@ export default function CommitteeReviewModal({
                                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
                             }}
                         >
-                            {submitting ? 'Isleniyor...' : action === 'approve' ? 'Onayla ve Gonder' : action === 'reject' ? 'Reddet' : 'Revizyon Iste'}
+                            {submitting ? 'İşleniyor...' : action === 'approve' ? 'Onayla ve Gönder' : action === 'reject' ? 'Reddet' : 'Revizyon İste'}
                         </button>
                     </div>
                 </form>

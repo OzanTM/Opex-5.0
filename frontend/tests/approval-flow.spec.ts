@@ -51,10 +51,11 @@ test.describe('End-to-end approval flow', () => {
         await page.getByRole('button', { name: 'Onayla' }).first().click();
         await expect(page.getByRole('heading', { name: 'Öneriyi Onayla' })).toBeVisible();
 
-        await page.locator('select').first().selectOption('KAIZEN');
+        const committeeApproveModal = page.getByRole('heading', { name: 'Öneriyi Onayla' }).locator('..');
+        await committeeApproveModal.locator('select').first().selectOption('KAIZEN');
+        await committeeApproveModal.locator('select').nth(1).selectOption({ index: 1 });
         await page.getByPlaceholder('Varsa eklemek istediğiniz notlar...').fill('Komite onayi e2e test notu.');
 
-        const committeeApproveModal = page.getByRole('heading', { name: 'Öneriyi Onayla' }).locator('..');
         await committeeApproveModal.getByRole('button', { name: 'Onayla ve Gönder' }).click();
         await expect(page.getByText('Müdür Onayında')).toBeVisible();
 
@@ -139,10 +140,11 @@ test.describe('End-to-end approval flow', () => {
         await expect(page.getByRole('heading', { name: 'Komite İşlemleri' })).toBeVisible();
         await page.getByRole('button', { name: 'Onayla' }).first().click();
         await expect(page.getByRole('heading', { name: 'Öneriyi Onayla' })).toBeVisible();
-        await page.locator('select').first().selectOption('KAIZEN');
+        const committeeApproveModal = page.getByRole('heading', { name: 'Öneriyi Onayla' }).locator('..');
+        await committeeApproveModal.locator('select').first().selectOption('KAIZEN');
+        await committeeApproveModal.locator('select').nth(1).selectOption({ index: 1 });
         await page.getByPlaceholder('Varsa eklemek istediğiniz notlar...').fill('Komite onayi e2e reject-flow notu.');
 
-        const committeeApproveModal = page.getByRole('heading', { name: 'Öneriyi Onayla' }).locator('..');
         await committeeApproveModal.getByRole('button', { name: 'Onayla ve Gönder' }).click();
         await expect(page.getByText('Müdür Onayında')).toBeVisible();
 
