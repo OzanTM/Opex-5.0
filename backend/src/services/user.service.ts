@@ -404,6 +404,45 @@ export const getRecentSuggestions = async (userId: number, limit: number = 5) =>
 };
 
 /**
+ * Get assignable users in requester's company (for committee project assignment)
+ */
+export const getAssignableUsers = async (requester: { companyId: number }) => {
+    const users = await prisma.user.findMany({
+        where: {
+            companyId: requester.companyId,
+            deletedAt: null,
+            status: { in: ['ACTIVE', 'PENDING_PASSWORD_CHANGE'] },
+        },
+        select: {
+            id: true,
+            employeeId: true,
+            firstName: true,
+            lastName: true,
+            position: true,
+            role: true,
+            department: {
+                select: {
+                    id: true,
+                    name: true,
+                },
+            },
+            unit: {
+                select: {
+                    id: true,
+                    name: true,
+                },
+            },
+        },
+        orderBy: [
+            { firstName: 'asc' },
+            { lastName: 'asc' },
+        ],
+    });
+
+    return users;
+};
+
+/**
  * Get user's pending approvals
  */
 export const getPendingApprovals = async (userId: number) => {

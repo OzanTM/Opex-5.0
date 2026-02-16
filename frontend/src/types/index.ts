@@ -62,6 +62,23 @@ export interface User {
     };
 }
 
+export interface AssignableUser {
+    id: number;
+    employeeId: string;
+    firstName: string;
+    lastName: string;
+    position?: string;
+    role: UserRole;
+    department?: {
+        id: number;
+        name: string;
+    };
+    unit?: {
+        id: number;
+        name: string;
+    };
+}
+
 // Suggestion Types
 export type SuggestionStatus =
     | 'DRAFT'

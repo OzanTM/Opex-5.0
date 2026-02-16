@@ -3,10 +3,11 @@
 import { useAuthStore } from '@/store/authStore';
 import { useRouter, useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { suggestionsApi } from '@/lib/api';
+import { suggestionsApi, usersApi } from '@/lib/api';
 import CommitteeReviewModal from '@/components/CommitteeReviewModal';
 import ManagerReviewModal from '@/components/ManagerReviewModal';
 import {
+    AssignableUser,
     Suggestion,
     getStatusLabelTr,
     SUGGESTION_CATEGORY_LABELS,
@@ -71,6 +72,10 @@ export default function SuggestionDetailPage() {
     const [reviewAction, setReviewAction] = useState<'approve' | 'reject' | 'request_revision' | null>(null);
     const [managerReviewModalOpen, setManagerReviewModalOpen] = useState(false);
     const [managerReviewAction, setManagerReviewAction] = useState<'approve' | 'reject' | null>(null);
+    const [assignableUsers, setAssignableUsers] = useState<AssignableUser[]>([]);
+    const [assignableUsersLoading, setAssignableUsersLoading] = useState(false);
+    const isCommitteeManager = user?.role === 'COMMITTEE_MANAGER' || user?.role === 'ADMIN';
+    const isApprover = user?.role === 'APPROVER' || user?.role === 'ADMIN';
 
     useEffect(() => {
         if (!isAuthenticated && !isLoading) {
@@ -81,11 +86,11 @@ export default function SuggestionDetailPage() {
     useEffect(() => {
         if (isAuthenticated && id) {
             loadSuggestion();
+            if (isCommitteeManager) {
+                loadAssignableUsers();
+            }
         }
-    }, [isAuthenticated, id]);
-
-    const isCommitteeManager = user?.role === 'COMMITTEE_MANAGER' || user?.role === 'ADMIN';
-    const isApprover = user?.role === 'APPROVER' || user?.role === 'ADMIN';
+    }, [isAuthenticated, id, isCommitteeManager]);
 
     const loadSuggestion = async () => {
         try {
@@ -102,6 +107,21 @@ export default function SuggestionDetailPage() {
             }
         } finally {
             setLoading(false);
+        }
+    };
+
+    const loadAssignableUsers = async () => {
+        try {
+            setAssignableUsersLoading(true);
+            const res = await usersApi.getAssignable();
+            const data = (res as any)?.data || res || [];
+            const items = Array.isArray(data) ? data : data.data || [];
+            setAssignableUsers(items);
+        } catch (err) {
+            console.error('Failed to load assignable users:', err);
+            setAssignableUsers([]);
+        } finally {
+            setAssignableUsersLoading(false);
         }
     };
 
@@ -125,17 +145,23 @@ export default function SuggestionDetailPage() {
         setReviewModalOpen(true);
     };
 
-    const handleReviewSubmit = async (data: { action: 'approve' | 'reject' | 'request_revision'; category?: string; note?: string }) => {
+    const handleReviewSubmit = async (data: {
+        action: 'approve' | 'reject' | 'request_revision';
+        category?: string;
+        projectLeaderId?: number;
+        teamMemberIds?: number[];
+        note?: string;
+    }) => {
         if (!suggestion) return;
         try {
             await suggestionsApi.committeeReview(suggestion.id, {
                 action: data.action,
                 category: data.category,
+                projectLeaderId: data.action === 'approve' ? data.projectLeaderId : undefined,
+                teamMemberIds: data.action === 'approve' ? data.teamMemberIds : undefined,
                 notes: data.action === 'approve' ? data.note : undefined,
                 rejectionReason: data.action === 'reject' ? data.note : undefined,
                 revisionRequestReason: data.action === 'request_revision' ? data.note : undefined,
-                // TODO: Project Leader and Team Members selection to be implemented
-                projectLeaderId: data.action === 'approve' ? user?.id : undefined // Temporary: assign current user (committee) as leader for now to bypass API validation if any
             });
             await loadSuggestion();
             setReviewModalOpen(false);
@@ -412,6 +438,8 @@ export default function SuggestionDetailPage() {
                 onClose={() => { setReviewModalOpen(false); setReviewAction(null); }}
                 onSubmit={handleReviewSubmit}
                 action={reviewAction}
+                users={assignableUsers}
+                usersLoading={assignableUsersLoading}
             />
 
             {/* Manager Actions Panel */}
