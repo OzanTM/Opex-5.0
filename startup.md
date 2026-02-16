@@ -197,6 +197,16 @@ make ops-health-check
 Canli oncesi pre-prod hazirlik kontrolu (env + systemd + nginx + dns):
 
 ```bash
+make init-prod-env
+```
+
+Ardindan placeholder degerleri doldurup dogrula:
+
+```bash
+make validate-prod-env
+```
+
+```bash
 make preprod-check APP_DOMAIN=app.ornek.com API_DOMAIN=api.ornek.com APP_DIR=/opt/opex-5.0 RUN_USER=opex SKIP_HTTPS=true
 ```
 

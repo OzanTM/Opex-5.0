@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: help first-setup bootstrap start stop restart status infra-up infra-down infra-logs db-reset seed backup-db restore-db backup-cron-install backup-cron-remove backup-cron-show secrets-aws-backend secrets-aws-frontend validate-prod-env prod-sync-secrets prod-deploy render-systemd-units render-nginx-config domain-ssl-preflight render-monitoring-config monitoring-up monitoring-down monitoring-status monitoring-logs monitoring-check preprod-check ops-health-check perf-smoke backend-test frontend-test e2e-smoke branch-protect local-rc-check release-check test clean
+.PHONY: help first-setup bootstrap start stop restart status infra-up infra-down infra-logs db-reset seed backup-db restore-db backup-cron-install backup-cron-remove backup-cron-show init-prod-env secrets-aws-backend secrets-aws-frontend validate-prod-env prod-sync-secrets prod-deploy render-systemd-units render-nginx-config domain-ssl-preflight render-monitoring-config monitoring-up monitoring-down monitoring-status monitoring-logs monitoring-check preprod-check ops-health-check perf-smoke backend-test frontend-test e2e-smoke branch-protect local-rc-check release-check test clean
 
 help:
 	@echo "Available targets:"
@@ -19,6 +19,7 @@ help:
 	@echo "  make backup-cron-install - Install daily backup cron (optional HOUR/MINUTE/RETENTION_DAYS)"
 	@echo "  make backup-cron-remove  - Remove backup cron entry"
 	@echo "  make backup-cron-show    - Show backup cron entry"
+	@echo "  make init-prod-env       - Bootstrap backend/frontend .env.production files from examples"
 	@echo "  make secrets-aws-backend - Export backend env file from AWS Secrets Manager"
 	@echo "  make secrets-aws-frontend - Export frontend env file from AWS Secrets Manager"
 	@echo "  make validate-prod-env   - Validate backend/frontend production env files"
@@ -96,6 +97,9 @@ backup-cron-remove:
 
 backup-cron-show:
 	@bash scripts/setup-backup-cron.sh --show
+
+init-prod-env:
+	@bash scripts/init-production-env.sh
 
 secrets-aws-backend:
 	@if [ -z "$(SECRET_ID)" ]; then \

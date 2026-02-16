@@ -65,6 +65,7 @@ Ornek kullanim:
 
 ```bash
 cd /Users/Ozan/Documents/opex-5.0
+make init-prod-env
 make secrets-aws-backend SECRET_ID=opex/prod/backend REGION=eu-west-1
 make secrets-aws-frontend SECRET_ID=opex/prod/frontend REGION=eu-west-1
 make validate-prod-env
