@@ -71,7 +71,7 @@ stop_from_pid_file() {
 kill_port_listener() {
   local port="$1"
   local pids
-  pids="$(lsof -ti :"$port" 2>/dev/null || true)"
+  pids="$(lsof -tiTCP:"$port" -sTCP:LISTEN 2>/dev/null || true)"
 
   if [[ -z "$pids" ]]; then
     return
@@ -84,7 +84,7 @@ kill_port_listener() {
     kill $pids >/dev/null 2>&1 || true
     sleep 1
     local still_running
-    still_running="$(lsof -ti :"$port" 2>/dev/null || true)"
+    still_running="$(lsof -tiTCP:"$port" -sTCP:LISTEN 2>/dev/null || true)"
     if [[ -n "$still_running" ]]; then
       warn "Port $port still in use after SIGTERM, using SIGKILL: $still_running"
       kill -9 $still_running >/dev/null 2>&1 || true
@@ -130,11 +130,11 @@ if [[ "$KILL_PORTS" == "true" ]]; then
   kill_port_listener 3000
 fi
 
-if lsof -ti :3001 >/dev/null 2>&1; then
+if lsof -tiTCP:3001 -sTCP:LISTEN >/dev/null 2>&1; then
   warn "Port 3001 is still in use by another process"
 fi
 
-if lsof -ti :3000 >/dev/null 2>&1; then
+if lsof -tiTCP:3000 -sTCP:LISTEN >/dev/null 2>&1; then
   warn "Port 3000 is still in use by another process"
 fi
 
