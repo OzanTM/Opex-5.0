@@ -1,6 +1,6 @@
 # OpEx 5.0 - Guncel Durum ve Eksikler
 
-**Son Guncelleme:** 15 Subat 2026  
+**Son Guncelleme:** 16 Subat 2026  
 **Teslimat Durumu:** Faz 1 (Stabilizasyon) kapanisa yakin  
 **Kapsam Tamamlanma (Feature/Operasyon):** %94 civari  
 **Uptime Hedefi (Production KPI):** %99.5 (canli ortam olcumu henuz baslamadi)
@@ -68,7 +68,8 @@
 - [x] Export endpointleri icin contract test eklendi (Excel/PDF response header + dosya formati)
 
 ### P1 - Kisa Vade
-- [ ] Swagger/OpenAPI dokumani
+- [x] Swagger/OpenAPI dokumani (`/api-docs`, `/api-docs.json`, `backend/src/docs/openapi.ts`)
+- [x] API hata kodlari ve ornek response dokumani (`docs/api-hata-kodlari.md`)
 - [ ] Kullanici kilavuzu (rol bazli kullanim adimlari)
 - [ ] Deployment runbook (staging/prod acilis-kapanis, rollback)
 - [ ] RC tag ve release notunun GitHub Release olarak yayinlanmasi

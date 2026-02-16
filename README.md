@@ -197,6 +197,15 @@ GET /api/v1/reports/export/excel
 GET /api/v1/reports/export/pdf
 ```
 
+### API Documentation (Swagger)
+```
+GET /api-docs
+GET /api-docs.json
+```
+
+Ek dokumanlar:
+- `docs/api-hata-kodlari.md`
+
 ## 📈 Performans Hedefleri
 
 - **API Response**: < 500ms

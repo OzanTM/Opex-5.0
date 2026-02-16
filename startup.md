@@ -73,6 +73,8 @@ make restart
 
 - Frontend: `http://localhost:3000`
 - Backend health: `http://localhost:3001/api/v1/health`
+- Backend API docs (Swagger): `http://localhost:3001/api-docs`
+- Backend API docs JSON: `http://localhost:3001/api-docs.json`
 - MinIO console: `http://localhost:9001`
 
 ## 5. Test Kullanici Bilgileri (seed sonrasi)

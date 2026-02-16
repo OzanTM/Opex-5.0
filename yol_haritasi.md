@@ -58,8 +58,8 @@ Bu plan mevcut repo durumu (CI aktif, temel moduller calisiyor) uzerinden
 **Sure:** 1 hafta
 
 ### 1. Teknik Dokumantasyon
-- [ ] Swagger/OpenAPI endpoint dokumani
-- [ ] Hata kodlari ve ornek response dokumani
+- [x] Swagger/OpenAPI endpoint dokumani (`/api-docs`, `/api-docs.json`)
+- [x] Hata kodlari ve ornek response dokumani (`docs/api-hata-kodlari.md`)
 - [x] RC release notes taslagi olusturuldu (`RELEASE_NOTES_RC1.md`)
 
 ### 2. Operasyon Dokumani
