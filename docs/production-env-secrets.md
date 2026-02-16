@@ -46,7 +46,33 @@ Provider bagimsiz model:
 2. Deploy pipeline sadece gerekli key'leri inject eder.
 3. Uygulama runtime'da plain text dosya yerine process env okur.
 
-## 5. Rotasyon Politikasi
+## 5. Uygulanan Teknik Cekirdek (Repo Icerisinde)
+
+Bu repoda production'a cikis icin asagidaki script tabani eklendi:
+
+- AWS Secrets Manager -> `.env` uretimi:
+  - `/Users/Ozan/Documents/opex-5.0/scripts/aws-secrets-to-env.sh`
+- Production env dogrulama:
+  - `/Users/Ozan/Documents/opex-5.0/scripts/validate-production-env.sh`
+- Make hedefleri:
+  - `make secrets-aws-backend SECRET_ID=<id> REGION=<region>`
+  - `make secrets-aws-frontend SECRET_ID=<id> REGION=<region>`
+  - `make validate-prod-env`
+
+Ornek kullanim:
+
+```bash
+cd /Users/Ozan/Documents/opex-5.0
+make secrets-aws-backend SECRET_ID=opex/prod/backend REGION=eu-west-1
+make secrets-aws-frontend SECRET_ID=opex/prod/frontend REGION=eu-west-1
+make validate-prod-env
+```
+
+Not:
+- Bu adim entegrasyon temelini saglar.
+- Canli ortama "uygulama" deployment pipeline ve sunucu erisim yetkileriyle tamamlanir.
+
+## 6. Rotasyon Politikasi
 
 - `JWT_SECRET`: 90 gunde bir
 - DB/Redis sifreleri: 90-180 gunde bir
@@ -58,7 +84,7 @@ Rotasyon adimlari:
 3. Production deploy et.
 4. Eski secret'i iptal et.
 
-## 6. Kontrol Listesi (Prod Oncesi)
+## 7. Kontrol Listesi (Prod Oncesi)
 
 - [ ] Tum placeholder degerler degistirildi
 - [ ] `JWT_SECRET` guclu ve benzersiz

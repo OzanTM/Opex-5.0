@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: help first-setup bootstrap start stop restart status infra-up infra-down infra-logs db-reset seed backup-db restore-db backup-cron-install backup-cron-remove backup-cron-show ops-health-check perf-smoke backend-test frontend-test e2e-smoke branch-protect release-check test clean
+.PHONY: help first-setup bootstrap start stop restart status infra-up infra-down infra-logs db-reset seed backup-db restore-db backup-cron-install backup-cron-remove backup-cron-show secrets-aws-backend secrets-aws-frontend validate-prod-env ops-health-check perf-smoke backend-test frontend-test e2e-smoke branch-protect release-check test clean
 
 help:
 	@echo "Available targets:"
@@ -19,6 +19,9 @@ help:
 	@echo "  make backup-cron-install - Install daily backup cron (optional HOUR/MINUTE/RETENTION_DAYS)"
 	@echo "  make backup-cron-remove  - Remove backup cron entry"
 	@echo "  make backup-cron-show    - Show backup cron entry"
+	@echo "  make secrets-aws-backend - Export backend env file from AWS Secrets Manager"
+	@echo "  make secrets-aws-frontend - Export frontend env file from AWS Secrets Manager"
+	@echo "  make validate-prod-env   - Validate backend/frontend production env files"
 	@echo "  make ops-health-check - Run basic backend/frontend/docs availability checks"
 	@echo "  make perf-smoke   - Run backend performance smoke test (p95/p99 check)"
 	@echo "  make test         - Run backend + frontend tests"
@@ -80,6 +83,23 @@ backup-cron-remove:
 
 backup-cron-show:
 	@bash scripts/setup-backup-cron.sh --show
+
+secrets-aws-backend:
+	@if [ -z "$(SECRET_ID)" ]; then \
+		echo "Usage: make secrets-aws-backend SECRET_ID=<aws-secret-id> [REGION=eu-west-1] [OUT=backend/.env.production]"; \
+		exit 1; \
+	fi
+	@bash scripts/aws-secrets-to-env.sh --secret-id "$(SECRET_ID)" --region "$(REGION)" --out "${OUT:-backend/.env.production}"
+
+secrets-aws-frontend:
+	@if [ -z "$(SECRET_ID)" ]; then \
+		echo "Usage: make secrets-aws-frontend SECRET_ID=<aws-secret-id> [REGION=eu-west-1] [OUT=frontend/.env.production]"; \
+		exit 1; \
+	fi
+	@bash scripts/aws-secrets-to-env.sh --secret-id "$(SECRET_ID)" --region "$(REGION)" --out "${OUT:-frontend/.env.production}"
+
+validate-prod-env:
+	@bash scripts/validate-production-env.sh --backend-file "${BACKEND_ENV_FILE:-backend/.env.production}" --frontend-file "${FRONTEND_ENV_FILE:-frontend/.env.production}"
 
 ops-health-check:
 	@bash scripts/ops-health-check.sh

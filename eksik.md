@@ -38,6 +38,7 @@
 - [x] Suggestion liste cache invalidasyonu index tabanli tuning ile optimize edildi
 - [x] CORS ve rate-limit ayarlari production odakli ve env kontrollu hale getirildi
 - [x] Backup cron otomasyon komutlari eklendi (`make backup-cron-install/show/remove`)
+- [x] Secret manager entegrasyon script tabani eklendi (`make secrets-aws-backend`, `make secrets-aws-frontend`, `make validate-prod-env`)
 
 ---
 

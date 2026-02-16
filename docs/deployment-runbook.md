@@ -54,6 +54,15 @@ Asagidaki degiskenler ortamda tanimli olmali:
   - `NEXT_PUBLIC_API_URL`
   - `NEXT_PUBLIC_APP_URL`
 
+Istersen AWS Secrets Manager'dan env dosyalarini otomatik uretebilirsin:
+
+```bash
+cd /Users/Ozan/Documents/opex-5.0
+make secrets-aws-backend SECRET_ID=opex/prod/backend REGION=eu-west-1
+make secrets-aws-frontend SECRET_ID=opex/prod/frontend REGION=eu-west-1
+make validate-prod-env
+```
+
 ## 5. Deployment Sirasinda Uygulanacak Adimlar
 
 1. Yeni release tag'ine ait image/artefact olustur.
