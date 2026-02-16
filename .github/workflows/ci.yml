@@ -238,6 +238,24 @@ jobs:
       - name: Run E2E smoke tests
         run: |
           set -euo pipefail
+          ROOT_DIR="$GITHUB_WORKSPACE"
+          BACKEND_LOG="$ROOT_DIR/backend-e2e.log"
+          FRONTEND_LOG="$ROOT_DIR/frontend-e2e.log"
+
+          wait_for_url() {
+            local url="$1"
+            local name="$2"
+            local retries="${3:-120}"
+            for i in $(seq 1 "$retries"); do
+              if curl -fsS "$url" > /dev/null; then
+                echo "[e2e] $name ready: $url"
+                return 0
+              fi
+              sleep 1
+            done
+            echo "[e2e][error] $name did not become ready: $url"
+            return 1
+          }
 
           cleanup() {
             if [ -n "${FRONTEND_PID:-}" ]; then
@@ -249,12 +267,11 @@ jobs:
           }
           trap cleanup EXIT
 
-          cd backend
-          npm run start > ../backend-e2e.log 2>&1 &
+          cd "$ROOT_DIR/backend"
+          npm run start > "$BACKEND_LOG" 2>&1 &
           BACKEND_PID=$!
-          cd ..
 
-          cd frontend
+          cd "$ROOT_DIR/frontend"
           mkdir -p .next/standalone/.next
           rm -rf .next/standalone/.next/static
           cp -R .next/static .next/standalone/.next/
@@ -263,27 +280,20 @@ jobs:
             cp -R public .next/standalone/
           fi
 
-          cd .next/standalone
-          PORT=3000 HOSTNAME=0.0.0.0 node server.js > ../../../frontend-e2e.log 2>&1 &
+          cd "$ROOT_DIR/frontend/.next/standalone"
+          PORT=3000 HOSTNAME=0.0.0.0 node server.js > "$FRONTEND_LOG" 2>&1 &
           FRONTEND_PID=$!
-          cd ../..
 
-          for i in {1..90}; do
-            if curl -fsS http://localhost:3001/api/v1/health > /dev/null; then
-              break
-            fi
-            sleep 1
-          done
-          for i in {1..90}; do
-            if curl -fsS http://localhost:3000 > /dev/null; then
-              break
-            fi
-            sleep 1
-          done
-          curl -fsS http://localhost:3001/api/v1/health > /dev/null
-          curl -fsS http://localhost:3000 > /dev/null
+          if ! wait_for_url "http://localhost:3001/api/v1/health" "Backend"; then
+            tail -n 200 "$BACKEND_LOG" || true
+            exit 1
+          fi
+          if ! wait_for_url "http://localhost:3000" "Frontend"; then
+            tail -n 200 "$FRONTEND_LOG" || true
+            exit 1
+          fi
 
-          cd frontend
+          cd "$ROOT_DIR/frontend"
           npm run test:e2e:smoke
 
       - name: Upload E2E logs
