@@ -1,8 +1,8 @@
 # OpEx 5.0 - Guncel Durum ve Eksikler
 
 **Son Guncelleme:** 16 Subat 2026  
-**Teslimat Durumu:** Faz 1 (Stabilizasyon) kapanisa yakin  
-**Kapsam Tamamlanma (Feature/Operasyon):** %94 civari  
+**Teslimat Durumu:** Faz 2 (Dokumantasyon ve release hazirligi) aktif  
+**Kapsam Tamamlanma (Feature/Operasyon):** %96 civari  
 **Uptime Hedefi (Production KPI):** %99.5 (canli ortam olcumu henuz baslamadi)
 
 ---
@@ -26,6 +26,10 @@
 - [x] Pozisyon bazli onay zinciri E2E matrix testleri eklendi (operator/uzman/sef)
 - [x] Export endpointleri icin backend contract testleri eklendi (excel/pdf + deprecation header)
 - [x] Release aday dokumanlari olusturuldu (`release_checklist.md`, `RELEASE_NOTES_RC1.md`)
+- [x] OpenAPI/Swagger endpoint dokumani eklendi (`/api-docs`, `/api-docs.json`)
+- [x] API hata kodlari dokumani eklendi (`docs/api-hata-kodlari.md`)
+- [x] Deployment/rollback/backup runbook dokumanlari eklendi (`docs/`)
+- [x] Rol bazli kullanim kilavuzu eklendi (`docs/rol-bazli-kullanim-kilavuzu.md`)
 
 ---
 
@@ -63,20 +67,20 @@
   - [x] Komite/yonetici red-revizyon varyantlari
 - [x] Full sistem smoke testi tek komut (`make e2e-smoke`) haline getirildi
 - [x] Frontend bagimlilik guvenlik guncellemeleri yapildi (ozellikle Next.js)
-- [ ] Branch protection ayari GitHub tarafinda uygulanacak (`make branch-protect`, token gerekli)
+- [x] Branch protection ayari GitHub tarafinda uygulandi (`main` PR + check zorunlu)
 - [x] Cok adimli onay akisi icin 3 farkli submitter profiline gore E2E matrix eklendi (operator/uzman/sef)
 - [x] Export endpointleri icin contract test eklendi (Excel/PDF response header + dosya formati)
 
 ### P1 - Kisa Vade
 - [x] Swagger/OpenAPI dokumani (`/api-docs`, `/api-docs.json`, `backend/src/docs/openapi.ts`)
 - [x] API hata kodlari ve ornek response dokumani (`docs/api-hata-kodlari.md`)
-- [ ] Kullanici kilavuzu (rol bazli kullanim adimlari)
-- [ ] Deployment runbook (staging/prod acilis-kapanis, rollback)
-- [ ] RC tag ve release notunun GitHub Release olarak yayinlanmasi
+- [x] Kullanici kilavuzu (rol bazli kullanim adimlari) (`docs/rol-bazli-kullanim-kilavuzu.md`)
+- [x] Deployment runbook (staging/prod acilis-kapanis, rollback) (`docs/deployment-runbook.md`, `docs/rollback-runbook.md`)
+- [x] RC tag ve release notunun GitHub Release olarak yayinlanmasi (`v1.0.0-rc.1`)
 
 ### P2 - Canliya Gecis Hazirligi
 - [ ] Production env tasarimi (domain, SSL, env secret yonetimi)
-- [ ] DB backup/restore proseduru
+- [ ] DB backup/restore operasyonunun ortamda otomatiklestirilmesi (runbook: `docs/backup-restore.md`)
 - [ ] Monitoring ve alarm temel metrikleri
 
 ---

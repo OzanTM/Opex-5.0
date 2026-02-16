@@ -205,6 +205,10 @@ GET /api-docs.json
 
 Ek dokumanlar:
 - `docs/api-hata-kodlari.md`
+- `docs/deployment-runbook.md`
+- `docs/rollback-runbook.md`
+- `docs/backup-restore.md`
+- `docs/rol-bazli-kullanim-kilavuzu.md`
 
 ## 📈 Performans Hedefleri
 
