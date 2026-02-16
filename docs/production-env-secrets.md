@@ -31,6 +31,9 @@ yaklasimini standartlastirmak icin hazirlanmistir.
 - `PORT`
 - `API_PREFIX`
 - `FRONTEND_URL`
+- `FRONTEND_ALLOWED_ORIGINS`
+- `TRUST_PROXY`
+- `RATE_LIMIT_*`
 - `NEXT_PUBLIC_*`
 
 ## 4. Onerilen Secret Manager Yaklasimi

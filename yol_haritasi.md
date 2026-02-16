@@ -86,7 +86,7 @@ Bu plan mevcut repo durumu (CI aktif, temel moduller calisiyor) uzerinden
 - [x] Production env + secret yonetimi dokumani ve env template'leri
 - [ ] Secret manager entegrasyonu ve production ortama uygulama
 - [ ] Domain + SSL
-- [ ] CORS ve rate-limit production ayari
+- [x] CORS ve rate-limit production ayari
 
 ### 2. Veritabani ve Isletim
 - [x] DB backup/restore runbook + script komutlari (`make backup-db`, `make restore-db`)
@@ -97,7 +97,7 @@ Bu plan mevcut repo durumu (CI aktif, temel moduller calisiyor) uzerinden
 
 ### 3. Performans
 - [x] Kritik endpointlerde response time olcumu icin local perf-smoke otomasyonu (`make perf-smoke`)
-- [ ] Gerekli noktalarda cache tuning
+- [x] Gerekli noktalarda cache tuning
 
 **Faz 3 Cikis Kriteri:**
 - Uygulama staging/prod ortaminda izlenebilir ve geri alinabilir halde

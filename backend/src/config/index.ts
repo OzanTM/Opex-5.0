@@ -8,6 +8,7 @@ interface Config {
     env: string;
     port: number;
     apiPrefix: string;
+    trustProxy: boolean | number;
 
     database: {
         url: string;
@@ -55,11 +56,13 @@ interface Config {
 
     frontend: {
         url: string;
+        allowedOrigins: string[];
     };
 
     rateLimit: {
         perMinute: number;
         perHour: number;
+        authPer15Min: number;
     };
 
     logging: {
@@ -83,6 +86,18 @@ const config: Config = {
     env: process.env.NODE_ENV || 'development',
     port: parseInt(process.env.PORT || '3001', 10),
     apiPrefix: process.env.API_PREFIX || '/api/v1',
+    trustProxy: (() => {
+        const raw = process.env.TRUST_PROXY?.trim();
+        if (!raw) return false;
+        const normalized = raw.toLowerCase();
+        if (normalized === 'true' || normalized === 'yes') return true;
+        if (normalized === 'false' || normalized === 'no') return false;
+        const numericValue = Number(raw);
+        if (Number.isInteger(numericValue) && numericValue >= 0) {
+            return numericValue;
+        }
+        return true;
+    })(),
 
     database: {
         url: process.env.DATABASE_URL || 'postgresql://localhost:5432/opex_db',
@@ -130,11 +145,23 @@ const config: Config = {
 
     frontend: {
         url: process.env.FRONTEND_URL || 'http://localhost:3000',
+        allowedOrigins: Array.from(
+            new Set(
+                [
+                    process.env.FRONTEND_URL || 'http://localhost:3000',
+                    ...(process.env.FRONTEND_ALLOWED_ORIGINS || '')
+                        .split(',')
+                        .map((origin) => origin.trim())
+                        .filter(Boolean),
+                ]
+            )
+        ),
     },
 
     rateLimit: {
         perMinute: parseInt(process.env.RATE_LIMIT_PER_MINUTE || '60', 10),
         perHour: parseInt(process.env.RATE_LIMIT_PER_HOUR || '1000', 10),
+        authPer15Min: parseInt(process.env.RATE_LIMIT_AUTH_PER_15_MIN || '100', 10),
     },
 
     logging: {

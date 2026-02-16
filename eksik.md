@@ -35,6 +35,8 @@
 - [x] Ops health-check komutu eklendi (`make ops-health-check`)
 - [x] Monitoring ve incident runbook dokumanlari eklendi (`docs/monitoring-alert-plan.md`, `docs/incident-response-runbook.md`)
 - [x] Local p95/p99 latency kontrolu icin perf smoke otomasyonu eklendi (`make perf-smoke`)
+- [x] Suggestion liste cache invalidasyonu index tabanli tuning ile optimize edildi
+- [x] CORS ve rate-limit ayarlari production odakli ve env kontrollu hale getirildi
 
 ---
 

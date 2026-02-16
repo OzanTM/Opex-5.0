@@ -10,19 +10,44 @@ import { requestLogger } from './utils/logger';
 import logger from './utils/logger';
 
 const app = express();
+const defaultDevOrigins = [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:3002',
+    'http://localhost:3003',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://127.0.0.1:3002',
+    'http://127.0.0.1:3003',
+];
+const allowedOrigins = new Set(
+    config.env === 'production'
+        ? config.frontend.allowedOrigins
+        : [...config.frontend.allowedOrigins, ...defaultDevOrigins]
+);
+const isRateLimitBypassPath = (path: string): boolean =>
+    path === '/api-docs.json' || path.startsWith('/api-docs') || path.endsWith('/health');
 
 // ============================================
 // MIDDLEWARE
 // ============================================
+
+if (config.trustProxy !== false) {
+    app.set('trust proxy', config.trustProxy);
+}
 
 // Security headers
 app.use(helmet());
 
 // CORS configuration
 app.use(cors({
-    origin: config.env === 'production'
-        ? [config.frontend.url]
-        : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003', 'http://192.168.1.113:3000', 'http://192.168.1.113:3001', 'http://192.168.1.113:3002', 'http://192.168.1.113:3003'],
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.has(origin)) {
+            callback(null, true);
+            return;
+        }
+        callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
@@ -36,14 +61,24 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(requestLogger);
 
 // Rate limiting
-const limiter = rateLimit({
+const perMinuteLimiter = rateLimit({
     windowMs: 60 * 1000, // 1 minute
     max: config.rateLimit.perMinute,
     message: { success: false, message: 'Too many requests, please try again later' },
     standardHeaders: true,
     legacyHeaders: false,
+    skip: (req) => isRateLimitBypassPath(req.path),
 });
-app.use(limiter);
+const perHourLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hour
+    max: config.rateLimit.perHour,
+    message: { success: false, message: 'Too many requests, please try again later' },
+    standardHeaders: true,
+    legacyHeaders: false,
+    skip: (req) => isRateLimitBypassPath(req.path),
+});
+app.use(perMinuteLimiter);
+app.use(perHourLimiter);
 
 // ============================================
 // ROUTES
