@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: help first-setup bootstrap start stop restart status infra-up infra-down infra-logs db-reset seed backup-db restore-db backup-cron-install backup-cron-remove backup-cron-show secrets-aws-backend secrets-aws-frontend validate-prod-env prod-sync-secrets prod-deploy render-systemd-units render-nginx-config domain-ssl-preflight render-monitoring-config monitoring-up monitoring-down monitoring-status monitoring-logs monitoring-check ops-health-check perf-smoke backend-test frontend-test e2e-smoke branch-protect release-check test clean
+.PHONY: help first-setup bootstrap start stop restart status infra-up infra-down infra-logs db-reset seed backup-db restore-db backup-cron-install backup-cron-remove backup-cron-show secrets-aws-backend secrets-aws-frontend validate-prod-env prod-sync-secrets prod-deploy render-systemd-units render-nginx-config domain-ssl-preflight render-monitoring-config monitoring-up monitoring-down monitoring-status monitoring-logs monitoring-check ops-health-check perf-smoke backend-test frontend-test e2e-smoke branch-protect local-rc-check release-check test clean
 
 help:
 	@echo "Available targets:"
@@ -38,6 +38,7 @@ help:
 	@echo "  make test         - Run backend + frontend tests"
 	@echo "  make e2e-smoke    - Run CI-like Playwright smoke flow (resets DB)"
 	@echo "  make branch-protect - Apply GitHub main branch protection (requires GITHUB_TOKEN)"
+	@echo "  make local-rc-check - Run local release-candidate gate (release-check + perf + health)"
 	@echo "  make release-check - Run release gate checks (build + tests + e2e smoke)"
 	@echo "  make clean        - Remove local pid/log folders created by scripts"
 
@@ -183,6 +184,9 @@ e2e-smoke:
 
 branch-protect:
 	@bash scripts/setup-branch-protection.sh --apply
+
+local-rc-check:
+	@bash scripts/local-rc-check.sh
 
 release-check:
 	@cd backend && npm run build

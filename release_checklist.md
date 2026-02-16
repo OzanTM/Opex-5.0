@@ -5,6 +5,7 @@ Bu dosya release adayi ve canliya gecis oncesi kontrol listesidir.
 ## 1) Kalite Kapisi (Code + Test)
 
 - [ ] `make release-check` basariyla tamamlandi
+- [ ] `make local-rc-check` basariyla tamamlandi
 - [ ] Backend testleri yesil
 - [ ] Frontend testleri yesil
 - [ ] Playwright E2E smoke (approval matrix dahil) yesil
@@ -57,6 +58,9 @@ GITHUB_TOKEN=<token> make branch-protect
 
 # 2) Tum release kontrolleri
 make release-check
+
+# 2b) Lokal RC kalite kapisi (onerilen)
+make local-rc-check
 
 # 3) Release aday etiketi
 git tag v1.0.0-rc.1

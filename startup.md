@@ -157,6 +157,15 @@ CI benzeri E2E smoke (DB reset + seed yapar):
 make e2e-smoke
 ```
 
+Lokal "canliya hazir aday" kalite kapisi (tek komut):
+
+```bash
+make local-rc-check
+```
+
+Bu komut sirasiyla `release-check`, `perf-smoke`, `start` ve `ops-health-check`
+calistirir.
+
 ## 8. Docker Servis Yonetimi
 
 Sadece altyapiyi ac:
