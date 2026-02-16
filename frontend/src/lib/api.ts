@@ -154,6 +154,12 @@ export const suggestionsApi = {
     },
 };
 
+// Approvals API
+export const approvalsApi = {
+    getPending: () =>
+        apiClient.get('/approvals/pending'),
+};
+
 // Import types for API
 import { Suggestion, LoginResponse, User } from '@/types';
 
