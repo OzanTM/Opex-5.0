@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: help first-setup bootstrap start stop restart status infra-up infra-down infra-logs db-reset seed backup-db restore-db backup-cron-install backup-cron-remove backup-cron-show secrets-aws-backend secrets-aws-frontend validate-prod-env prod-sync-secrets prod-deploy render-nginx-config domain-ssl-preflight monitoring-up monitoring-down monitoring-status monitoring-logs ops-health-check perf-smoke backend-test frontend-test e2e-smoke branch-protect release-check test clean
+.PHONY: help first-setup bootstrap start stop restart status infra-up infra-down infra-logs db-reset seed backup-db restore-db backup-cron-install backup-cron-remove backup-cron-show secrets-aws-backend secrets-aws-frontend validate-prod-env prod-sync-secrets prod-deploy render-systemd-units render-nginx-config domain-ssl-preflight monitoring-up monitoring-down monitoring-status monitoring-logs ops-health-check perf-smoke backend-test frontend-test e2e-smoke branch-protect release-check test clean
 
 help:
 	@echo "Available targets:"
@@ -24,6 +24,7 @@ help:
 	@echo "  make validate-prod-env   - Validate backend/frontend production env files"
 	@echo "  make prod-sync-secrets   - Sync backend/frontend env from AWS Secrets Manager and apply runtime backend env"
 	@echo "  make prod-deploy         - Server deploy flow (checkout ref + sync secrets + build + migrate + restart)"
+	@echo "  make render-systemd-units - Render backend/frontend systemd unit files"
 	@echo "  make render-nginx-config - Render production nginx config for domain+ssl"
 	@echo "  make domain-ssl-preflight - Validate DNS/HTTPS readiness for app+api domains"
 	@echo "  make monitoring-up  - Start Prometheus/Grafana/Alertmanager monitoring stack"
@@ -122,6 +123,13 @@ prod-deploy:
 		exit 1; \
 	fi
 	@bash scripts/production-deploy.sh --ref "$(REF)" --backend-secret-id "$(BACKEND_SECRET_ID)" --frontend-secret-id "$(FRONTEND_SECRET_ID)" --region "$(or $(REGION),eu-west-1)" $(if $(RESTART_CMD),--restart-cmd "$(RESTART_CMD)",)
+
+render-systemd-units:
+	@if [ -z "$(APP_DIR)" ] || [ -z "$(RUN_USER)" ]; then \
+		echo "Usage: make render-systemd-units APP_DIR=/opt/opex-5.0 RUN_USER=opex [RUN_GROUP=opex] [BACKEND_PORT=3001] [FRONTEND_PORT=3000] [OUT_DIR=ops/systemd/generated]"; \
+		exit 1; \
+	fi
+	@bash scripts/render-systemd-units.sh --app-dir "$(APP_DIR)" --run-user "$(RUN_USER)" --run-group "$(or $(RUN_GROUP),$(RUN_USER))" --backend-port "$(or $(BACKEND_PORT),3001)" --frontend-port "$(or $(FRONTEND_PORT),3000)" --out-dir "$(or $(OUT_DIR),ops/systemd/generated)"
 
 render-nginx-config:
 	@if [ -z "$(APP_DOMAIN)" ] || [ -z "$(API_DOMAIN)" ]; then \

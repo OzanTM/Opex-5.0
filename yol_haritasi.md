@@ -86,6 +86,7 @@ Bu plan mevcut repo durumu (CI aktif, temel moduller calisiyor) uzerinden
 - [x] Production env + secret yonetimi dokumani ve env template'leri
 - [x] Secret manager entegrasyon script tabani (AWS Secrets Manager -> env + env validation)
 - [x] Secret manager'in production pipeline/sunucu ortamina uygulanmasi icin deploy scriptleri (`make prod-sync-secrets`, `make prod-deploy`)
+- [x] Systemd unit template ve render scripti eklendi (`make render-systemd-units`)
 - [ ] Secret manager deploy akisinin gercek production ortamda calistirilip dogrulanmasi
 - [x] Domain + SSL icin nginx template + render/preflight scriptleri + runbook
 - [ ] Domain + SSL'in production sunucuya uygulanmasi

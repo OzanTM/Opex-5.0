@@ -33,6 +33,10 @@ Bu dosya release adayi ve canliya gecis oncesi kontrol listesidir.
 
 - [ ] Production env degiskenleri netlesti
 - [ ] Secret yonetimi metodu netlesti
+- [ ] `make prod-sync-secrets ...` ile sunucuda secret sync dogrulandi
+- [ ] `make render-systemd-units ...` ile unit dosyalari uretilip systemd kurulumu tamamlandi
+- [ ] `make domain-ssl-preflight ...` basariyla gecti
+- [ ] `make monitoring-up` sonrasi Prometheus/Grafana/Alertmanager erisimi dogrulandi
 - [ ] Backup/restore proseduru denendi
 - [ ] Monitoring/alert metrikleri tanimlandi
 - [ ] `make ops-health-check` staging ortaminda basariyla calisti

@@ -76,6 +76,9 @@ Domain + SSL adimlari icin:
 Monitoring/alarm adimlari icin:
 - `docs/monitoring-alert-plan.md`
 
+Systemd servis dosyalari icin:
+- `make render-systemd-units APP_DIR=/opt/opex-5.0 RUN_USER=opex`
+
 ## 5. Deployment Sirasinda Uygulanacak Adimlar
 
 1. Yeni release tag'ine ait image/artefact olustur.
@@ -105,7 +108,41 @@ Not:
 - `RESTART_CMD` ortamina gore degisir (`systemd`, `pm2`, docker vb.).
 - Script `backend/.env` dosyasini otomatik gunceller (backend runtime icin).
 
-## 6. Smoke Kontrol Listesi (Canli Sonrasi)
+## 6. Sunucuda Tek Seferlik Systemd Kurulumu (Onerilen)
+
+1. Unit dosyalarini render et:
+
+```bash
+cd /Users/Ozan/Documents/opex-5.0
+make render-systemd-units APP_DIR=/opt/opex-5.0 RUN_USER=opex RUN_GROUP=opex
+```
+
+2. Unit dosyalarini sisteme kopyala:
+
+```bash
+sudo cp /Users/Ozan/Documents/opex-5.0/ops/systemd/generated/opex-backend.service /etc/systemd/system/
+sudo cp /Users/Ozan/Documents/opex-5.0/ops/systemd/generated/opex-frontend.service /etc/systemd/system/
+```
+
+3. Log dizini ve izinler:
+
+```bash
+sudo mkdir -p /var/log/opex
+sudo chown -R opex:opex /var/log/opex
+```
+
+4. Servisleri aktif et:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now opex-backend opex-frontend
+sudo systemctl status opex-backend --no-pager
+sudo systemctl status opex-frontend --no-pager
+```
+
+Not: Bu kurulumdan sonra `make prod-deploy ... RESTART_CMD="sudo systemctl restart opex-backend opex-frontend"` akisini kullan.
+
+## 7. Smoke Kontrol Listesi (Canli Sonrasi)
 
 - `GET /api/v1/health` 200 donuyor.
 - Frontend aciliyor (`/login` sayfasi).
@@ -115,7 +152,7 @@ Not:
   - `GET /api/v1/reports/export/excel`
   - `GET /api/v1/reports/export/pdf`
 
-## 7. Incident Durumunda
+## 8. Incident Durumunda
 
 - Hata buyukse rollout durdur.
 - Rollback icin:

@@ -87,6 +87,12 @@ make prod-deploy \
   RESTART_CMD="sudo systemctl restart opex-backend opex-frontend"
 ```
 
+Systemd unit dosyalarini olusturmak icin:
+
+```bash
+make render-systemd-units APP_DIR=/opt/opex-5.0 RUN_USER=opex RUN_GROUP=opex
+```
+
 Not:
 - Bu adim entegrasyon temelini saglar.
 - Canli ortama "uygulama" deployment pipeline ve sunucu erisim yetkileriyle tamamlanir.
