@@ -96,7 +96,7 @@ Bu plan mevcut repo durumu (CI aktif, temel moduller calisiyor) uzerinden
 - [ ] Monitoring/alarm kurallarinin production ortama entegrasyonu
 
 ### 3. Performans
-- [ ] Kritik endpointlerde response time olcumu (p95/p99 hedefleri)
+- [x] Kritik endpointlerde response time olcumu icin local perf-smoke otomasyonu (`make perf-smoke`)
 - [ ] Gerekli noktalarda cache tuning
 
 **Faz 3 Cikis Kriteri:**

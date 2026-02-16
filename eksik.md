@@ -2,7 +2,7 @@
 
 **Son Guncelleme:** 16 Subat 2026  
 **Teslimat Durumu:** Faz 3 (Production hardening) aktif  
-**Kapsam Tamamlanma (Feature/Operasyon):** %97 civari  
+**Kapsam Tamamlanma (Feature/Operasyon):** %98 civari  
 **Uptime Hedefi (Production KPI):** %99.5 (canli ortam olcumu henuz baslamadi)
 
 ---
@@ -34,6 +34,7 @@
 - [x] DB backup/restore scriptleri eklendi (`scripts/db-backup.sh`, `scripts/db-restore.sh`)
 - [x] Ops health-check komutu eklendi (`make ops-health-check`)
 - [x] Monitoring ve incident runbook dokumanlari eklendi (`docs/monitoring-alert-plan.md`, `docs/incident-response-runbook.md`)
+- [x] Local p95/p99 latency kontrolu icin perf smoke otomasyonu eklendi (`make perf-smoke`)
 
 ---
 
@@ -86,6 +87,7 @@
 - [x] Production env/secret tasarimi ve template'leri hazirlandi
 - [x] DB backup/restore runbook + lokal script otomasyonu hazirlandi
 - [x] Monitoring/alarm metrik plani dokumante edildi
+- [x] Kritik endpointlerde p95/p99 olcumu icin local test komutu eklendi
 - [ ] Secret manager entegrasyonu ve production'a uygulanmasi
 - [ ] Domain + SSL ve production network ayarlari
 - [ ] Monitoring/alarm sisteminin production ortama baglanmasi

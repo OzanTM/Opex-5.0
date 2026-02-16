@@ -230,6 +230,10 @@ npm run test
 # Frontend testleri
 cd frontend
 npm run test
+
+# Performans smoke (p95/p99)
+cd /Users/Ozan/Documents/opex-5.0
+make perf-smoke
 ```
 
 ## 🤖 GitHub Actions CI

@@ -44,6 +44,12 @@ cd /Users/Ozan/Documents/opex-5.0
 make ops-health-check
 ```
 
+Temel latency smoke (p95/p99):
+
+```bash
+make perf-smoke
+```
+
 ## 5. Dashboard Onerisi
 
 Tek panelde en az:
