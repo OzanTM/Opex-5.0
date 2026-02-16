@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: help first-setup bootstrap start stop restart status infra-up infra-down infra-logs db-reset seed backup-db restore-db backup-cron-install backup-cron-remove backup-cron-show secrets-aws-backend secrets-aws-frontend validate-prod-env prod-sync-secrets prod-deploy render-systemd-units render-nginx-config domain-ssl-preflight render-monitoring-config monitoring-up monitoring-down monitoring-status monitoring-logs monitoring-check ops-health-check perf-smoke backend-test frontend-test e2e-smoke branch-protect local-rc-check release-check test clean
+.PHONY: help first-setup bootstrap start stop restart status infra-up infra-down infra-logs db-reset seed backup-db restore-db backup-cron-install backup-cron-remove backup-cron-show secrets-aws-backend secrets-aws-frontend validate-prod-env prod-sync-secrets prod-deploy render-systemd-units render-nginx-config domain-ssl-preflight render-monitoring-config monitoring-up monitoring-down monitoring-status monitoring-logs monitoring-check preprod-check ops-health-check perf-smoke backend-test frontend-test e2e-smoke branch-protect local-rc-check release-check test clean
 
 help:
 	@echo "Available targets:"
@@ -33,6 +33,7 @@ help:
 	@echo "  make monitoring-status - Show monitoring stack status"
 	@echo "  make monitoring-logs - Tail monitoring stack logs"
 	@echo "  make monitoring-check - Check monitoring HTTP endpoints"
+	@echo "  make preprod-check - Run pre-production readiness checks (env + systemd + nginx + dns)"
 	@echo "  make ops-health-check - Run basic backend/frontend/docs availability checks"
 	@echo "  make perf-smoke   - Run backend performance smoke test (p95/p99 check)"
 	@echo "  make test         - Run backend + frontend tests"
@@ -166,6 +167,18 @@ monitoring-logs:
 
 monitoring-check:
 	@bash scripts/monitoring-check.sh
+
+preprod-check:
+	@bash scripts/preprod-check.sh \
+		--backend-env-file "$(or $(BACKEND_ENV_FILE),backend/.env.production)" \
+		--frontend-env-file "$(or $(FRONTEND_ENV_FILE),frontend/.env.production)" \
+		--app-domain "$(APP_DOMAIN)" \
+		--api-domain "$(API_DOMAIN)" \
+		--app-dir "$(APP_DIR)" \
+		--run-user "$(RUN_USER)" \
+		--run-group "$(RUN_GROUP)" \
+		$(if $(filter true,$(SKIP_HTTPS)),--skip-https-check,) \
+		$(if $(filter true,$(RUN_MONITORING_CHECK)),--run-monitoring-check,)
 
 ops-health-check:
 	@bash scripts/ops-health-check.sh

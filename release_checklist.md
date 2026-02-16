@@ -37,6 +37,7 @@ Bu dosya release adayi ve canliya gecis oncesi kontrol listesidir.
 - [ ] `make prod-sync-secrets ...` ile sunucuda secret sync dogrulandi
 - [ ] `make render-systemd-units ...` ile unit dosyalari uretilip systemd kurulumu tamamlandi
 - [ ] `make domain-ssl-preflight ...` basariyla gecti
+- [ ] `make preprod-check ...` basariyla gecti
 - [ ] `make monitoring-up` sonrasi Prometheus/Grafana/Alertmanager erisimi dogrulandi
 - [ ] Backup/restore proseduru denendi
 - [ ] Monitoring/alert metrikleri tanimlandi

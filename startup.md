@@ -194,6 +194,16 @@ Backend + docs + frontend ayakta mi:
 make ops-health-check
 ```
 
+Canli oncesi pre-prod hazirlik kontrolu (env + systemd + nginx + dns):
+
+```bash
+make preprod-check APP_DOMAIN=app.ornek.com API_DOMAIN=api.ornek.com APP_DIR=/opt/opex-5.0 RUN_USER=opex SKIP_HTTPS=true
+```
+
+Not:
+- `backend/.env.production` ve `frontend/.env.production` dosyalari yoksa bu kontrol bilerek fail olur.
+- DNS/SSL canliya yaklasinca `SKIP_HTTPS=true` kaldir.
+
 ## 10. Performans Smoke (p95/p99)
 
 Backend ayaktayken temel performans kontrolu:
