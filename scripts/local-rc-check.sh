@@ -8,7 +8,7 @@ log() {
 }
 
 log "Stopping local app processes for clean release-check ports..."
-(cd "$ROOT_DIR" && bash scripts/dev-stop.sh) || true
+(cd "$ROOT_DIR" && bash scripts/dev-stop.sh --force --kill-ports) || true
 
 log "Running release-check (backend/frontend build+test + e2e smoke)..."
 (cd "$ROOT_DIR" && make release-check)

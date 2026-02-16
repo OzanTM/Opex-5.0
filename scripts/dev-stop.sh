@@ -6,6 +6,7 @@ PID_DIR="$ROOT_DIR/.pids"
 
 WITH_INFRA=false
 FORCE=false
+KILL_PORTS=false
 
 log() {
   printf "[dev-stop] %s\n" "$*"
@@ -22,6 +23,7 @@ Usage: bash scripts/dev-stop.sh [options]
 Options:
   --with-infra  Also stop docker infrastructure (docker compose down)
   --force       Force kill app processes with SIGKILL
+  --kill-ports  Also terminate listeners on ports 3001/3000
   -h, --help    Show this help
 EOF
 }
@@ -66,6 +68,30 @@ stop_from_pid_file() {
   rm -f "$pid_file"
 }
 
+kill_port_listener() {
+  local port="$1"
+  local pids
+  pids="$(lsof -tiTCP:"$port" -sTCP:LISTEN 2>/dev/null || true)"
+
+  if [[ -z "$pids" ]]; then
+    return
+  fi
+
+  log "Terminating remaining listener(s) on port $port: $pids"
+  if [[ "$FORCE" == "true" ]]; then
+    kill -9 $pids >/dev/null 2>&1 || true
+  else
+    kill $pids >/dev/null 2>&1 || true
+    sleep 1
+    local still_running
+    still_running="$(lsof -tiTCP:"$port" -sTCP:LISTEN 2>/dev/null || true)"
+    if [[ -n "$still_running" ]]; then
+      warn "Port $port still in use after SIGTERM, using SIGKILL: $still_running"
+      kill -9 $still_running >/dev/null 2>&1 || true
+    fi
+  fi
+}
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --with-infra)
@@ -74,6 +100,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --force)
       FORCE=true
+      shift
+      ;;
+    --kill-ports)
+      KILL_PORTS=true
       shift
       ;;
     -h|--help)
@@ -95,11 +125,16 @@ if [[ "$WITH_INFRA" == "true" ]]; then
   (cd "$ROOT_DIR" && docker compose down)
 fi
 
-if lsof -ti :3001 >/dev/null 2>&1; then
+if [[ "$KILL_PORTS" == "true" ]]; then
+  kill_port_listener 3001
+  kill_port_listener 3000
+fi
+
+if lsof -tiTCP:3001 -sTCP:LISTEN >/dev/null 2>&1; then
   warn "Port 3001 is still in use by another process"
 fi
 
-if lsof -ti :3000 >/dev/null 2>&1; then
+if lsof -tiTCP:3000 -sTCP:LISTEN >/dev/null 2>&1; then
   warn "Port 3000 is still in use by another process"
 fi
 
