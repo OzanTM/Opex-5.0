@@ -208,6 +208,7 @@ Ek dokumanlar:
 - `docs/deployment-runbook.md`
 - `docs/rollback-runbook.md`
 - `docs/backup-restore.md`
+- `docs/domain-ssl-runbook.md`
 - `docs/rol-bazli-kullanim-kilavuzu.md`
 - `docs/production-env-secrets.md`
 - `docs/monitoring-alert-plan.md`

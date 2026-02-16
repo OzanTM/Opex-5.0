@@ -63,16 +63,20 @@ make secrets-aws-frontend SECRET_ID=opex/prod/frontend REGION=eu-west-1
 make validate-prod-env
 ```
 
+Domain + SSL adimlari icin:
+- `docs/domain-ssl-runbook.md`
+
 ## 5. Deployment Sirasinda Uygulanacak Adimlar
 
 1. Yeni release tag'ine ait image/artefact olustur.
-2. Uygulamayi staging ortaminda ayağa kaldir.
-3. Staging smoke kontrol:
+2. Domain + SSL config'ini hazirla ve sunucuda aktif et.
+3. Uygulamayi staging ortaminda ayağa kaldir.
+4. Staging smoke kontrol:
    - Backend health: `/api/v1/health`
    - Swagger: `/api-docs`
    - Frontend login akisi
-4. Staging dogrulandiysa production rollout yap.
-5. Production sonrasi 15-30 dk hizli kontrol (smoke + log izleme).
+5. Staging dogrulandiysa production rollout yap.
+6. Production sonrasi 15-30 dk hizli kontrol (smoke + log izleme).
 
 ## 6. Smoke Kontrol Listesi (Canli Sonrasi)
 

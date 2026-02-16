@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: help first-setup bootstrap start stop restart status infra-up infra-down infra-logs db-reset seed backup-db restore-db backup-cron-install backup-cron-remove backup-cron-show secrets-aws-backend secrets-aws-frontend validate-prod-env ops-health-check perf-smoke backend-test frontend-test e2e-smoke branch-protect release-check test clean
+.PHONY: help first-setup bootstrap start stop restart status infra-up infra-down infra-logs db-reset seed backup-db restore-db backup-cron-install backup-cron-remove backup-cron-show secrets-aws-backend secrets-aws-frontend validate-prod-env render-nginx-config domain-ssl-preflight ops-health-check perf-smoke backend-test frontend-test e2e-smoke branch-protect release-check test clean
 
 help:
 	@echo "Available targets:"
@@ -22,6 +22,8 @@ help:
 	@echo "  make secrets-aws-backend - Export backend env file from AWS Secrets Manager"
 	@echo "  make secrets-aws-frontend - Export frontend env file from AWS Secrets Manager"
 	@echo "  make validate-prod-env   - Validate backend/frontend production env files"
+	@echo "  make render-nginx-config - Render production nginx config for domain+ssl"
+	@echo "  make domain-ssl-preflight - Validate DNS/HTTPS readiness for app+api domains"
 	@echo "  make ops-health-check - Run basic backend/frontend/docs availability checks"
 	@echo "  make perf-smoke   - Run backend performance smoke test (p95/p99 check)"
 	@echo "  make test         - Run backend + frontend tests"
@@ -76,7 +78,7 @@ restore-db:
 	@bash scripts/db-restore.sh --file "$(BACKUP_FILE)"
 
 backup-cron-install:
-	@bash scripts/setup-backup-cron.sh --install --hour "${HOUR:-2}" --minute "${MINUTE:-0}" --retention-days "${RETENTION_DAYS:-14}"
+	@bash scripts/setup-backup-cron.sh --install --hour "$(or $(HOUR),2)" --minute "$(or $(MINUTE),0)" --retention-days "$(or $(RETENTION_DAYS),14)"
 
 backup-cron-remove:
 	@bash scripts/setup-backup-cron.sh --remove
@@ -89,17 +91,31 @@ secrets-aws-backend:
 		echo "Usage: make secrets-aws-backend SECRET_ID=<aws-secret-id> [REGION=eu-west-1] [OUT=backend/.env.production]"; \
 		exit 1; \
 	fi
-	@bash scripts/aws-secrets-to-env.sh --secret-id "$(SECRET_ID)" --region "$(REGION)" --out "${OUT:-backend/.env.production}"
+	@bash scripts/aws-secrets-to-env.sh --secret-id "$(SECRET_ID)" --region "$(or $(REGION),eu-west-1)" --out "$(or $(OUT),backend/.env.production)"
 
 secrets-aws-frontend:
 	@if [ -z "$(SECRET_ID)" ]; then \
 		echo "Usage: make secrets-aws-frontend SECRET_ID=<aws-secret-id> [REGION=eu-west-1] [OUT=frontend/.env.production]"; \
 		exit 1; \
 	fi
-	@bash scripts/aws-secrets-to-env.sh --secret-id "$(SECRET_ID)" --region "$(REGION)" --out "${OUT:-frontend/.env.production}"
+	@bash scripts/aws-secrets-to-env.sh --secret-id "$(SECRET_ID)" --region "$(or $(REGION),eu-west-1)" --out "$(or $(OUT),frontend/.env.production)"
 
 validate-prod-env:
-	@bash scripts/validate-production-env.sh --backend-file "${BACKEND_ENV_FILE:-backend/.env.production}" --frontend-file "${FRONTEND_ENV_FILE:-frontend/.env.production}"
+	@bash scripts/validate-production-env.sh --backend-file "$(or $(BACKEND_ENV_FILE),backend/.env.production)" --frontend-file "$(or $(FRONTEND_ENV_FILE),frontend/.env.production)"
+
+render-nginx-config:
+	@if [ -z "$(APP_DOMAIN)" ] || [ -z "$(API_DOMAIN)" ]; then \
+		echo "Usage: make render-nginx-config APP_DOMAIN=<app-domain> API_DOMAIN=<api-domain> [FRONTEND_UPSTREAM=http://127.0.0.1:3000] [BACKEND_UPSTREAM=http://127.0.0.1:3001] [OUT=ops/nginx/opex.conf]"; \
+		exit 1; \
+	fi
+	@bash scripts/render-nginx-config.sh --app-domain "$(APP_DOMAIN)" --api-domain "$(API_DOMAIN)" --frontend-upstream "$(or $(FRONTEND_UPSTREAM),http://127.0.0.1:3000)" --backend-upstream "$(or $(BACKEND_UPSTREAM),http://127.0.0.1:3001)" --out "$(or $(OUT),ops/nginx/opex.conf)"
+
+domain-ssl-preflight:
+	@if [ -z "$(APP_DOMAIN)" ] || [ -z "$(API_DOMAIN)" ]; then \
+		echo "Usage: make domain-ssl-preflight APP_DOMAIN=<app-domain> API_DOMAIN=<api-domain> [SKIP_HTTPS=true]"; \
+		exit 1; \
+	fi
+	@bash scripts/domain-ssl-preflight.sh --app-domain "$(APP_DOMAIN)" --api-domain "$(API_DOMAIN)" $(if $(filter true,$(SKIP_HTTPS)),--skip-https-check,)
 
 ops-health-check:
 	@bash scripts/ops-health-check.sh
