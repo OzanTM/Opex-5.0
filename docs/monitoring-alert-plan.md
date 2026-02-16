@@ -13,10 +13,11 @@ Bu repoda local/staging dogrulama icin asagidaki stack eklendi:
 
 Dosyalar:
 - `/Users/Ozan/Documents/opex-5.0/ops/monitoring/docker-compose.monitoring.yml`
-- `/Users/Ozan/Documents/opex-5.0/ops/monitoring/prometheus.yml`
+- `/Users/Ozan/Documents/opex-5.0/ops/monitoring/prometheus.yml.template`
 - `/Users/Ozan/Documents/opex-5.0/ops/monitoring/alerts/opex-alerts.yml`
 - `/Users/Ozan/Documents/opex-5.0/ops/monitoring/blackbox.yml`
 - `/Users/Ozan/Documents/opex-5.0/ops/monitoring/alertmanager.yml`
+- `/Users/Ozan/Documents/opex-5.0/scripts/render-monitoring-config.sh`
 
 ## 1. Hedef SLO'lar
 
@@ -72,6 +73,7 @@ Monitoring stack komutlari:
 cd /Users/Ozan/Documents/opex-5.0
 make monitoring-up
 make monitoring-status
+make monitoring-check
 ```
 
 Arayuzler:
@@ -100,6 +102,7 @@ Tek panelde en az:
 Bu stack su an local/staging dogrulama icin hazirdir.
 Production ortama geciste:
 
-1. `host.docker.internal` probe targetlarini production URL'leri ile degistir.
+1. Probe targetlarini production URL'leriyle render et:
+   - `make render-monitoring-config FRONTEND_PROBE_URL=https://app.example.com BACKEND_HEALTH_URL=https://api.example.com/api/v1/health`
 2. Alertmanager receiverlarini (Slack/Teams/Webhook/e-posta) aktif et.
 3. Grafana admin sifresini degistir ve SSO/rol ayrimini uygula.

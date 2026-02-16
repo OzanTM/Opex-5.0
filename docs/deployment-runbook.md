@@ -75,6 +75,7 @@ Domain + SSL adimlari icin:
 
 Monitoring/alarm adimlari icin:
 - `docs/monitoring-alert-plan.md`
+- `make render-monitoring-config FRONTEND_PROBE_URL=https://<app-domain> BACKEND_HEALTH_URL=https://<api-domain>/api/v1/health`
 
 Systemd servis dosyalari icin:
 - `make render-systemd-units APP_DIR=/opt/opex-5.0 RUN_USER=opex`

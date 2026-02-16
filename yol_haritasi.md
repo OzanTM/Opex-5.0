@@ -97,6 +97,7 @@ Bu plan mevcut repo durumu (CI aktif, temel moduller calisiyor) uzerinden
 - [x] Backup cron otomasyon scriptleri eklendi (`make backup-cron-install/show/remove`)
 - [x] Monitoring/alarm plan dokumani ve health-check komutu (`make ops-health-check`)
 - [x] Monitoring stack ve alarm kurallari eklendi (`make monitoring-up/down/status/logs`)
+- [x] Monitoring probe target render mekanizmasi eklendi (`make render-monitoring-config`, `make monitoring-check`)
 - [x] Incident response mini runbook
 - [ ] DB backup politikasi ve zamanlamasinin production ortama otomasyonu (RPO/RTO)
 - [ ] Monitoring/alarm kurallarinin production ortama entegrasyonu

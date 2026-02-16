@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: help first-setup bootstrap start stop restart status infra-up infra-down infra-logs db-reset seed backup-db restore-db backup-cron-install backup-cron-remove backup-cron-show secrets-aws-backend secrets-aws-frontend validate-prod-env prod-sync-secrets prod-deploy render-systemd-units render-nginx-config domain-ssl-preflight monitoring-up monitoring-down monitoring-status monitoring-logs ops-health-check perf-smoke backend-test frontend-test e2e-smoke branch-protect release-check test clean
+.PHONY: help first-setup bootstrap start stop restart status infra-up infra-down infra-logs db-reset seed backup-db restore-db backup-cron-install backup-cron-remove backup-cron-show secrets-aws-backend secrets-aws-frontend validate-prod-env prod-sync-secrets prod-deploy render-systemd-units render-nginx-config domain-ssl-preflight render-monitoring-config monitoring-up monitoring-down monitoring-status monitoring-logs monitoring-check ops-health-check perf-smoke backend-test frontend-test e2e-smoke branch-protect release-check test clean
 
 help:
 	@echo "Available targets:"
@@ -27,10 +27,12 @@ help:
 	@echo "  make render-systemd-units - Render backend/frontend systemd unit files"
 	@echo "  make render-nginx-config - Render production nginx config for domain+ssl"
 	@echo "  make domain-ssl-preflight - Validate DNS/HTTPS readiness for app+api domains"
+	@echo "  make render-monitoring-config - Render Prometheus probe targets for local/prod"
 	@echo "  make monitoring-up  - Start Prometheus/Grafana/Alertmanager monitoring stack"
 	@echo "  make monitoring-down - Stop monitoring stack"
 	@echo "  make monitoring-status - Show monitoring stack status"
 	@echo "  make monitoring-logs - Tail monitoring stack logs"
+	@echo "  make monitoring-check - Check monitoring HTTP endpoints"
 	@echo "  make ops-health-check - Run basic backend/frontend/docs availability checks"
 	@echo "  make perf-smoke   - Run backend performance smoke test (p95/p99 check)"
 	@echo "  make test         - Run backend + frontend tests"
@@ -145,7 +147,11 @@ domain-ssl-preflight:
 	fi
 	@bash scripts/domain-ssl-preflight.sh --app-domain "$(APP_DOMAIN)" --api-domain "$(API_DOMAIN)" $(if $(filter true,$(SKIP_HTTPS)),--skip-https-check,)
 
+render-monitoring-config:
+	@bash scripts/render-monitoring-config.sh --frontend-url "$(or $(FRONTEND_PROBE_URL),http://host.docker.internal:3000)" --backend-health-url "$(or $(BACKEND_HEALTH_URL),http://host.docker.internal:3001/api/v1/health)" --out "$(or $(OUT),ops/monitoring/prometheus.generated.yml)"
+
 monitoring-up:
+	@bash scripts/render-monitoring-config.sh --frontend-url "$(or $(FRONTEND_PROBE_URL),http://host.docker.internal:3000)" --backend-health-url "$(or $(BACKEND_HEALTH_URL),http://host.docker.internal:3001/api/v1/health)" --out "ops/monitoring/prometheus.generated.yml"
 	@docker compose -f ops/monitoring/docker-compose.monitoring.yml up -d
 
 monitoring-down:
@@ -156,6 +162,9 @@ monitoring-status:
 
 monitoring-logs:
 	@docker compose -f ops/monitoring/docker-compose.monitoring.yml logs -f --tail=100
+
+monitoring-check:
+	@bash scripts/monitoring-check.sh
 
 ops-health-check:
 	@bash scripts/ops-health-check.sh

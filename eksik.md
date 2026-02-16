@@ -43,6 +43,7 @@
 - [x] Systemd unit template/render otomasyonu eklendi (`make render-systemd-units`)
 - [x] Domain + SSL hazirlik artefaktlari eklendi (`make render-nginx-config`, `make domain-ssl-preflight`, `docs/domain-ssl-runbook.md`)
 - [x] Monitoring stack + alarm kural seti eklendi (`make monitoring-up/down/status/logs`)
+- [x] Monitoring hedef URL render ve endpoint check komutlari eklendi (`make render-monitoring-config`, `make monitoring-check`)
 
 ---
 

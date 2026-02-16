@@ -49,3 +49,6 @@ ops/nginx/*.conf
 
 # Generated systemd units
 ops/systemd/generated/
+
+# Generated monitoring config
+ops/monitoring/prometheus.generated.yml
