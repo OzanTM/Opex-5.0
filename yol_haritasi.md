@@ -15,8 +15,8 @@ Bu plan mevcut repo durumu (CI aktif, temel moduller calisiyor) uzerinden
 
 ---
 
-## Faz 1 - Stabilizasyon (Su anki sonraki asama)
-**Durum:** In Progress (%97 tamamlandi)  
+## Faz 1 - Stabilizasyon
+**Durum:** Tamamlandi  
 **Sure:** 1-2 hafta  
 **Hedef:** Kritik is akislarini testle guvence altina almak
 
@@ -30,7 +30,7 @@ Bu plan mevcut repo durumu (CI aktif, temel moduller calisiyor) uzerinden
 ### 2. Kalite Kapisi (CI)
 - [x] Kritik E2E smoke senaryosunu CI'a ekle
 - [x] Lokal CI-benzeri smoke akisi tek komutla calisiyor (`make e2e-smoke`)
-- [ ] PR merge oncesi "backend + frontend + e2e-smoke" zorunlu gecis (branch protection apply bekliyor)
+- [x] PR merge oncesi "backend + frontend + e2e-smoke" zorunlu gecis (branch protection ile aktif)
 
 ### 3. Prompt Uyumlandirma (Akis + Export)
 - [x] Rapor export endpointleri prompt ile hizalandi (`/export/excel`, `/export/pdf`)
@@ -54,23 +54,23 @@ Bu plan mevcut repo durumu (CI aktif, temel moduller calisiyor) uzerinden
 ---
 
 ## Faz 2 - Dokumantasyon ve Release Hazirligi
-**Durum:** Faz 1 sonrasi  
+**Durum:** Tamamlandi  
 **Sure:** 1 hafta
 
 ### 1. Teknik Dokumantasyon
-- [ ] Swagger/OpenAPI endpoint dokumani
-- [ ] Hata kodlari ve ornek response dokumani
+- [x] Swagger/OpenAPI endpoint dokumani (`/api-docs`, `/api-docs.json`)
+- [x] Hata kodlari ve ornek response dokumani (`docs/api-hata-kodlari.md`)
 - [x] RC release notes taslagi olusturuldu (`RELEASE_NOTES_RC1.md`)
 
 ### 2. Operasyon Dokumani
-- [ ] Deployment runbook (staging/prod)
-- [ ] Rollback adimlari
-- [ ] Backup/restore adimlari
+- [x] Deployment runbook (staging/prod) (`docs/deployment-runbook.md`)
+- [x] Rollback adimlari (`docs/rollback-runbook.md`)
+- [x] Backup/restore adimlari (`docs/backup-restore.md`)
 - [x] Release checklist taslagi olusturuldu (`release_checklist.md`)
 
 ### 3. Kullanici Dokumani
-- [ ] Rol bazli kullanim kilavuzu
-- [ ] Sik sorunlar ve cozumler
+- [x] Rol bazli kullanim kilavuzu (`docs/rol-bazli-kullanim-kilavuzu.md`)
+- [x] Sik sorunlar ve cozumler (`startup.md`, `docs/rol-bazli-kullanim-kilavuzu.md`)
 
 **Faz 2 Cikis Kriteri:**
 - Yeni bir ekip uyesi dokumanla sistemi ayaga kaldirabiliyor
@@ -79,18 +79,21 @@ Bu plan mevcut repo durumu (CI aktif, temel moduller calisiyor) uzerinden
 ---
 
 ## Faz 3 - Production Hardening
-**Durum:** Faz 2 sonrasi  
+**Durum:** In Progress  
 **Sure:** 1-2 hafta
 
 ### 1. Ortam ve Guvenlik
-- [ ] Production env secret yonetimi
+- [x] Production env + secret yonetimi dokumani ve env template'leri
+- [ ] Secret manager entegrasyonu ve production ortama uygulama
 - [ ] Domain + SSL
 - [ ] CORS ve rate-limit production ayari
 
 ### 2. Veritabani ve Isletim
-- [ ] DB backup politikasi ve zamanlamasi (RPO/RTO hedefleri ile)
-- [ ] Log/monitoring/alarm temel metrikleri (SLO/SLA alarmlari ile)
-- [ ] Incident response mini runbook
+- [x] DB backup/restore runbook + script komutlari (`make backup-db`, `make restore-db`)
+- [x] Monitoring/alarm plan dokumani ve health-check komutu (`make ops-health-check`)
+- [x] Incident response mini runbook
+- [ ] DB backup politikasi ve zamanlamasinin production ortama otomasyonu (RPO/RTO)
+- [ ] Monitoring/alarm kurallarinin production ortama entegrasyonu
 
 ### 3. Performans
 - [ ] Kritik endpointlerde response time olcumu (p95/p99 hedefleri)
@@ -111,7 +114,7 @@ Bu plan mevcut repo durumu (CI aktif, temel moduller calisiyor) uzerinden
 
 ---
 
-## Bu Hafta Ne Yapacagiz? (Net Plan)
+## Bir Sonraki Asama (Net Plan)
 
-1. Branch protection ile PR kapisini zorunlu hale getir.
-2. Faz 1 cikis kriterlerini kapatip release-aday hazirla.
+1. Faz 3 kapsaminda production env + secret yonetimi tasarimini netlestir.
+2. DB backup politikasi/zamanlamasi ve monitoring alarmlarini ortama uygula.

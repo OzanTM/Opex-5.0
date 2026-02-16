@@ -73,6 +73,8 @@ make restart
 
 - Frontend: `http://localhost:3000`
 - Backend health: `http://localhost:3001/api/v1/health`
+- Backend API docs (Swagger): `http://localhost:3001/api-docs`
+- Backend API docs JSON: `http://localhost:3001/api-docs.json`
 - MinIO console: `http://localhost:9001`
 
 ## 5. Test Kullanici Bilgileri (seed sonrasi)
@@ -90,6 +92,18 @@ Sadece seed tekrar calistir:
 
 ```bash
 make seed
+```
+
+Backup al:
+
+```bash
+make backup-db
+```
+
+Belirli bir backup dosyasini restore et:
+
+```bash
+make restore-db BACKUP_FILE=backups/<dosya>.sql
 ```
 
 Veritabanini sifirla (dikkat: tum veri silinir):
@@ -145,7 +159,15 @@ Altyapi loglari:
 make infra-logs
 ```
 
-## 9. Log Dosyalari
+## 9. Operasyonel Hızlı Kontrol
+
+Backend + docs + frontend ayakta mi:
+
+```bash
+make ops-health-check
+```
+
+## 10. Log Dosyalari
 
 Script ile baslatildiginda loglar burada tutulur:
 
@@ -158,7 +180,7 @@ Canli takip:
 tail -f .logs/backend.log .logs/frontend.log
 ```
 
-## 10. Sik Problemler ve Cozumler
+## 11. Sik Problemler ve Cozumler
 
 ### Problem: `Port 3000 already in use` veya `Port 3001 already in use`
 
@@ -197,7 +219,7 @@ Kontrol:
 2. `backend/.env` icinde `DATABASE_URL` ve `REDIS_*` degerleri dogru mu?
 3. Docker servisleri ayakta mi? (`docker compose ps`)
 
-## 11. Kod Cektikten Sonra (git pull sonrasi) Onerilen Rutin
+## 12. Kod Cektikten Sonra (git pull sonrasi) Onerilen Rutin
 
 ```bash
 git pull
@@ -213,7 +235,7 @@ make start
 
 `make start` zaten migration deploy calistirir.
 
-## 12. Temizlik
+## 13. Temizlik
 
 Sadece script PID/log klasorlerini temizler:
 
@@ -223,7 +245,7 @@ make clean
 
 Not: Bu komut kodu veya veritabani verisini silmez.
 
-## 13. Branch Protection (GitHub)
+## 14. Branch Protection (GitHub)
 
 Plan geregi `main` branch icin PR + CI zorunlu olmasi onerilir.
 
@@ -245,3 +267,12 @@ Not:
   - `Backend Build and Test`
   - `Frontend Build and Test`
   - `E2E Smoke (Chromium)`
+
+## 15. Production Dokumanlari
+
+- `docs/production-env-secrets.md`
+- `docs/deployment-runbook.md`
+- `docs/rollback-runbook.md`
+- `docs/backup-restore.md`
+- `docs/monitoring-alert-plan.md`
+- `docs/incident-response-runbook.md`

@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: help first-setup bootstrap start stop restart status infra-up infra-down infra-logs db-reset seed backend-test frontend-test e2e-smoke branch-protect release-check test clean
+.PHONY: help first-setup bootstrap start stop restart status infra-up infra-down infra-logs db-reset seed backup-db restore-db ops-health-check backend-test frontend-test e2e-smoke branch-protect release-check test clean
 
 help:
 	@echo "Available targets:"
@@ -14,6 +14,9 @@ help:
 	@echo "  make infra-down   - Stop docker services"
 	@echo "  make db-reset     - Reset database schema (destructive)"
 	@echo "  make seed         - Seed test users and sample data"
+	@echo "  make backup-db    - Create PostgreSQL backup to ./backups"
+	@echo "  make restore-db   - Restore PostgreSQL from BACKUP_FILE (destructive if --reset used)"
+	@echo "  make ops-health-check - Run basic backend/frontend/docs availability checks"
 	@echo "  make test         - Run backend + frontend tests"
 	@echo "  make e2e-smoke    - Run CI-like Playwright smoke flow (resets DB)"
 	@echo "  make branch-protect - Apply GitHub main branch protection (requires GITHUB_TOKEN)"
@@ -54,6 +57,19 @@ db-reset:
 
 seed:
 	@cd backend && npm run db:seed
+
+backup-db:
+	@bash scripts/db-backup.sh
+
+restore-db:
+	@if [ -z "$(BACKUP_FILE)" ]; then \
+		echo "Usage: make restore-db BACKUP_FILE=backups/<file>.sql"; \
+		exit 1; \
+	fi
+	@bash scripts/db-restore.sh --file "$(BACKUP_FILE)"
+
+ops-health-check:
+	@bash scripts/ops-health-check.sh
 
 backend-test:
 	@cd backend && npm test -- --runInBand

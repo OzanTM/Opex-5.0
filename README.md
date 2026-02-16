@@ -197,6 +197,22 @@ GET /api/v1/reports/export/excel
 GET /api/v1/reports/export/pdf
 ```
 
+### API Documentation (Swagger)
+```
+GET /api-docs
+GET /api-docs.json
+```
+
+Ek dokumanlar:
+- `docs/api-hata-kodlari.md`
+- `docs/deployment-runbook.md`
+- `docs/rollback-runbook.md`
+- `docs/backup-restore.md`
+- `docs/rol-bazli-kullanim-kilavuzu.md`
+- `docs/production-env-secrets.md`
+- `docs/monitoring-alert-plan.md`
+- `docs/incident-response-runbook.md`
+
 ## 📈 Performans Hedefleri
 
 - **API Response**: < 500ms

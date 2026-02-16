@@ -2,8 +2,10 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import swaggerUi from 'swagger-ui-express';
 import config from './config';
 import routes from './routes';
+import openApiDocument from './docs/openapi';
 import { requestLogger } from './utils/logger';
 import logger from './utils/logger';
 
@@ -46,6 +48,24 @@ app.use(limiter);
 // ============================================
 // ROUTES
 // ============================================
+
+app.get('/api-docs.json', (_req, res) => {
+    res.json(openApiDocument);
+});
+
+app.use(
+    '/api-docs',
+    (_req: express.Request, res: express.Response, next: express.NextFunction) => {
+        // Keep docs usable if helmet sets restrictive CSP headers.
+        res.removeHeader('Content-Security-Policy');
+        next();
+    },
+    swaggerUi.serve,
+    swaggerUi.setup(openApiDocument, {
+        explorer: true,
+        customSiteTitle: 'OpEx 5.0 API Docs',
+    })
+);
 
 app.use(config.apiPrefix, routes);
 
