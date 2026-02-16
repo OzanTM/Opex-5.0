@@ -39,6 +39,7 @@
 - [x] CORS ve rate-limit ayarlari production odakli ve env kontrollu hale getirildi
 - [x] Backup cron otomasyon komutlari eklendi (`make backup-cron-install/show/remove`)
 - [x] Secret manager entegrasyon script tabani eklendi (`make secrets-aws-backend`, `make secrets-aws-frontend`, `make validate-prod-env`)
+- [x] Secret manager'in deploy akisi scriptlendi (`make prod-sync-secrets`, `make prod-deploy`)
 - [x] Domain + SSL hazirlik artefaktlari eklendi (`make render-nginx-config`, `make domain-ssl-preflight`, `docs/domain-ssl-runbook.md`)
 - [x] Monitoring stack + alarm kural seti eklendi (`make monitoring-up/down/status/logs`)
 

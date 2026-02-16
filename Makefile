@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: help first-setup bootstrap start stop restart status infra-up infra-down infra-logs db-reset seed backup-db restore-db backup-cron-install backup-cron-remove backup-cron-show secrets-aws-backend secrets-aws-frontend validate-prod-env render-nginx-config domain-ssl-preflight monitoring-up monitoring-down monitoring-status monitoring-logs ops-health-check perf-smoke backend-test frontend-test e2e-smoke branch-protect release-check test clean
+.PHONY: help first-setup bootstrap start stop restart status infra-up infra-down infra-logs db-reset seed backup-db restore-db backup-cron-install backup-cron-remove backup-cron-show secrets-aws-backend secrets-aws-frontend validate-prod-env prod-sync-secrets prod-deploy render-nginx-config domain-ssl-preflight monitoring-up monitoring-down monitoring-status monitoring-logs ops-health-check perf-smoke backend-test frontend-test e2e-smoke branch-protect release-check test clean
 
 help:
 	@echo "Available targets:"
@@ -22,6 +22,8 @@ help:
 	@echo "  make secrets-aws-backend - Export backend env file from AWS Secrets Manager"
 	@echo "  make secrets-aws-frontend - Export frontend env file from AWS Secrets Manager"
 	@echo "  make validate-prod-env   - Validate backend/frontend production env files"
+	@echo "  make prod-sync-secrets   - Sync backend/frontend env from AWS Secrets Manager and apply runtime backend env"
+	@echo "  make prod-deploy         - Server deploy flow (checkout ref + sync secrets + build + migrate + restart)"
 	@echo "  make render-nginx-config - Render production nginx config for domain+ssl"
 	@echo "  make domain-ssl-preflight - Validate DNS/HTTPS readiness for app+api domains"
 	@echo "  make monitoring-up  - Start Prometheus/Grafana/Alertmanager monitoring stack"
@@ -106,6 +108,20 @@ secrets-aws-frontend:
 
 validate-prod-env:
 	@bash scripts/validate-production-env.sh --backend-file "$(or $(BACKEND_ENV_FILE),backend/.env.production)" --frontend-file "$(or $(FRONTEND_ENV_FILE),frontend/.env.production)"
+
+prod-sync-secrets:
+	@if [ -z "$(BACKEND_SECRET_ID)" ] || [ -z "$(FRONTEND_SECRET_ID)" ]; then \
+		echo "Usage: make prod-sync-secrets BACKEND_SECRET_ID=<id> FRONTEND_SECRET_ID=<id> [REGION=eu-west-1]"; \
+		exit 1; \
+	fi
+	@bash scripts/production-sync-secrets.sh --backend-secret-id "$(BACKEND_SECRET_ID)" --frontend-secret-id "$(FRONTEND_SECRET_ID)" --region "$(or $(REGION),eu-west-1)" --apply-runtime-files
+
+prod-deploy:
+	@if [ -z "$(REF)" ] || [ -z "$(BACKEND_SECRET_ID)" ] || [ -z "$(FRONTEND_SECRET_ID)" ]; then \
+		echo "Usage: make prod-deploy REF=<git-ref> BACKEND_SECRET_ID=<id> FRONTEND_SECRET_ID=<id> [REGION=eu-west-1] [RESTART_CMD='sudo systemctl restart opex-backend opex-frontend']"; \
+		exit 1; \
+	fi
+	@bash scripts/production-deploy.sh --ref "$(REF)" --backend-secret-id "$(BACKEND_SECRET_ID)" --frontend-secret-id "$(FRONTEND_SECRET_ID)" --region "$(or $(REGION),eu-west-1)" $(if $(RESTART_CMD),--restart-cmd "$(RESTART_CMD)",)
 
 render-nginx-config:
 	@if [ -z "$(APP_DOMAIN)" ] || [ -z "$(API_DOMAIN)" ]; then \

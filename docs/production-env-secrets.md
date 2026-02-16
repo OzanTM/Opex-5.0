@@ -58,6 +58,8 @@ Bu repoda production'a cikis icin asagidaki script tabani eklendi:
   - `make secrets-aws-backend SECRET_ID=<id> REGION=<region>`
   - `make secrets-aws-frontend SECRET_ID=<id> REGION=<region>`
   - `make validate-prod-env`
+  - `make prod-sync-secrets BACKEND_SECRET_ID=<id> FRONTEND_SECRET_ID=<id>`
+  - `make prod-deploy REF=<ref> BACKEND_SECRET_ID=<id> FRONTEND_SECRET_ID=<id>`
 
 Ornek kullanim:
 
@@ -66,6 +68,23 @@ cd /Users/Ozan/Documents/opex-5.0
 make secrets-aws-backend SECRET_ID=opex/prod/backend REGION=eu-west-1
 make secrets-aws-frontend SECRET_ID=opex/prod/frontend REGION=eu-west-1
 make validate-prod-env
+```
+
+Sunucu tarafi secret sync:
+
+```bash
+make prod-sync-secrets BACKEND_SECRET_ID=opex/prod/backend FRONTEND_SECRET_ID=opex/prod/frontend REGION=eu-west-1
+```
+
+Sunucu tarafi deploy akisi:
+
+```bash
+make prod-deploy \
+  REF=main \
+  BACKEND_SECRET_ID=opex/prod/backend \
+  FRONTEND_SECRET_ID=opex/prod/frontend \
+  REGION=eu-west-1 \
+  RESTART_CMD="sudo systemctl restart opex-backend opex-frontend"
 ```
 
 Not:

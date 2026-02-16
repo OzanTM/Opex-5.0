@@ -63,6 +63,13 @@ make secrets-aws-frontend SECRET_ID=opex/prod/frontend REGION=eu-west-1
 make validate-prod-env
 ```
 
+Sunucu tarafinda tek komutla secret sync:
+
+```bash
+cd /Users/Ozan/Documents/opex-5.0
+make prod-sync-secrets BACKEND_SECRET_ID=opex/prod/backend FRONTEND_SECRET_ID=opex/prod/frontend REGION=eu-west-1
+```
+
 Domain + SSL adimlari icin:
 - `docs/domain-ssl-runbook.md`
 
@@ -81,6 +88,22 @@ Monitoring/alarm adimlari icin:
 5. Monitoring stack'te probe ve alarm kurallarini dogrula.
 6. Staging dogrulandiysa production rollout yap.
 7. Production sonrasi 15-30 dk hizli kontrol (smoke + log izleme).
+
+Alternatif olarak sunucuda tum deploy adimlarini tek script ile yurut:
+
+```bash
+cd /Users/Ozan/Documents/opex-5.0
+make prod-deploy \
+  REF=main \
+  BACKEND_SECRET_ID=opex/prod/backend \
+  FRONTEND_SECRET_ID=opex/prod/frontend \
+  REGION=eu-west-1 \
+  RESTART_CMD="sudo systemctl restart opex-backend opex-frontend"
+```
+
+Not:
+- `RESTART_CMD` ortamina gore degisir (`systemd`, `pm2`, docker vb.).
+- Script `backend/.env` dosyasini otomatik gunceller (backend runtime icin).
 
 ## 6. Smoke Kontrol Listesi (Canli Sonrasi)
 

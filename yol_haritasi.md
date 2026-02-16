@@ -85,7 +85,8 @@ Bu plan mevcut repo durumu (CI aktif, temel moduller calisiyor) uzerinden
 ### 1. Ortam ve Guvenlik
 - [x] Production env + secret yonetimi dokumani ve env template'leri
 - [x] Secret manager entegrasyon script tabani (AWS Secrets Manager -> env + env validation)
-- [ ] Secret manager'in production pipeline/sunucu ortamina uygulanmasi
+- [x] Secret manager'in production pipeline/sunucu ortamina uygulanmasi icin deploy scriptleri (`make prod-sync-secrets`, `make prod-deploy`)
+- [ ] Secret manager deploy akisinin gercek production ortamda calistirilip dogrulanmasi
 - [x] Domain + SSL icin nginx template + render/preflight scriptleri + runbook
 - [ ] Domain + SSL'in production sunucuya uygulanmasi
 - [x] CORS ve rate-limit production ayari
