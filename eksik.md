@@ -37,6 +37,7 @@
 - [x] Local p95/p99 latency kontrolu icin perf smoke otomasyonu eklendi (`make perf-smoke`)
 - [x] Suggestion liste cache invalidasyonu index tabanli tuning ile optimize edildi
 - [x] CORS ve rate-limit ayarlari production odakli ve env kontrollu hale getirildi
+- [x] Backup cron otomasyon komutlari eklendi (`make backup-cron-install/show/remove`)
 
 ---
 

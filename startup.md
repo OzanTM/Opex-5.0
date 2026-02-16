@@ -100,6 +100,24 @@ Backup al:
 make backup-db
 ```
 
+Gunluk otomatik backup (cron) kur:
+
+```bash
+make backup-cron-install HOUR=2 MINUTE=0 RETENTION_DAYS=14
+```
+
+Cron kaydini goster:
+
+```bash
+make backup-cron-show
+```
+
+Cron kaydini kaldir:
+
+```bash
+make backup-cron-remove
+```
+
 Belirli bir backup dosyasini restore et:
 
 ```bash

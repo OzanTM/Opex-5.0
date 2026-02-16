@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: help first-setup bootstrap start stop restart status infra-up infra-down infra-logs db-reset seed backup-db restore-db ops-health-check perf-smoke backend-test frontend-test e2e-smoke branch-protect release-check test clean
+.PHONY: help first-setup bootstrap start stop restart status infra-up infra-down infra-logs db-reset seed backup-db restore-db backup-cron-install backup-cron-remove backup-cron-show ops-health-check perf-smoke backend-test frontend-test e2e-smoke branch-protect release-check test clean
 
 help:
 	@echo "Available targets:"
@@ -16,6 +16,9 @@ help:
 	@echo "  make seed         - Seed test users and sample data"
 	@echo "  make backup-db    - Create PostgreSQL backup to ./backups"
 	@echo "  make restore-db   - Restore PostgreSQL from BACKUP_FILE (destructive if --reset used)"
+	@echo "  make backup-cron-install - Install daily backup cron (optional HOUR/MINUTE/RETENTION_DAYS)"
+	@echo "  make backup-cron-remove  - Remove backup cron entry"
+	@echo "  make backup-cron-show    - Show backup cron entry"
 	@echo "  make ops-health-check - Run basic backend/frontend/docs availability checks"
 	@echo "  make perf-smoke   - Run backend performance smoke test (p95/p99 check)"
 	@echo "  make test         - Run backend + frontend tests"
@@ -68,6 +71,15 @@ restore-db:
 		exit 1; \
 	fi
 	@bash scripts/db-restore.sh --file "$(BACKUP_FILE)"
+
+backup-cron-install:
+	@bash scripts/setup-backup-cron.sh --install --hour "${HOUR:-2}" --minute "${MINUTE:-0}" --retention-days "${RETENTION_DAYS:-14}"
+
+backup-cron-remove:
+	@bash scripts/setup-backup-cron.sh --remove
+
+backup-cron-show:
+	@bash scripts/setup-backup-cron.sh --show
 
 ops-health-check:
 	@bash scripts/ops-health-check.sh

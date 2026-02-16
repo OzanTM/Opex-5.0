@@ -90,6 +90,7 @@ Bu plan mevcut repo durumu (CI aktif, temel moduller calisiyor) uzerinden
 
 ### 2. Veritabani ve Isletim
 - [x] DB backup/restore runbook + script komutlari (`make backup-db`, `make restore-db`)
+- [x] Backup cron otomasyon scriptleri eklendi (`make backup-cron-install/show/remove`)
 - [x] Monitoring/alarm plan dokumani ve health-check komutu (`make ops-health-check`)
 - [x] Incident response mini runbook
 - [ ] DB backup politikasi ve zamanlamasinin production ortama otomasyonu (RPO/RTO)
